@@ -3,6 +3,7 @@ import 'dotenv/config'
 import { getPayload } from 'payload'
 
 import config from '@/payload.config'
+import { seedDepartments } from '@/seed/departments'
 
 const requiredEnv = (name: string): string => {
   const value = process.env[name]
@@ -14,7 +15,7 @@ const requiredEnv = (name: string): string => {
   return value
 }
 
-const seedSuperadmin = async (): Promise<void> => {
+const seed = async (): Promise<void> => {
   const email = requiredEnv('SUPERADMIN_EMAIL')
   const name = requiredEnv('SUPERADMIN_NAME')
   const password = requiredEnv('SUPERADMIN_PASSWORD')
@@ -62,9 +63,10 @@ const seedSuperadmin = async (): Promise<void> => {
     }
 
     payload.logger.info(`Seeded superadmin ${email}`)
+    await seedDepartments(payload)
   } finally {
     await payload.destroy()
   }
 }
 
-await seedSuperadmin()
+await seed()

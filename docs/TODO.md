@@ -12,6 +12,14 @@ Keep work here only when the project has chosen to postpone it. Remove an item w
 - Decide whether contributors can hold scopes from more than one domain type. The first version limits each contributor to departments, the placement cell, or societies.
 - Decide whether the project needs an audit log beyond Payload versions and timestamps.
 
+## Department content
+
+- Model faculty members and represent Head of Department assignments as relationships rather than department text fields.
+- Model laboratories separately so their facilities, equipment, courses, and media can evolve independently of department identity.
+- Model academic programmes and keep programme educational objectives, programme outcomes, programme-specific outcomes, and intake on that domain rather than on departments.
+- Model time-sensitive accreditation claims with their programme, accrediting body, validity period, and supporting document before importing or publishing them.
+- Review the scraped department material and normalize approved claims before publishing the seeded department drafts.
+
 ## Infrastructure
 
 - Select the production hosting platform and managed PostgreSQL provider.

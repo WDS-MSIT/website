@@ -6,6 +6,7 @@ import { buildConfig } from 'payload'
 import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
+import { Departments } from './collections/Departments'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 
@@ -39,7 +40,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Media],
+  collections: [Users, Departments, Media],
   editor: lexicalEditor(),
   graphQL: {
     disable: true,
