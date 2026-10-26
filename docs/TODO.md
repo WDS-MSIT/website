@@ -14,11 +14,17 @@ Keep work here only when the project has chosen to postpone it. Remove an item w
 
 ## Department content
 
-- Model faculty members and represent Head of Department assignments as relationships rather than department text fields.
+- Represent Head of Department and shift assignments as relationships rather than faculty or department text fields.
 - Model laboratories separately so their facilities, equipment, courses, and media can evolve independently of department identity.
 - Model academic programmes and keep programme educational objectives, programme outcomes, programme-specific outcomes, and intake on that domain rather than on departments.
 - Model time-sensitive accreditation claims with their programme, accrediting body, validity period, and supporting document before importing or publishing them.
 - Review the scraped department material and normalize approved claims before publishing the seeded department drafts.
+
+## Faculty content
+
+- Decide how to represent publication, patent, citation, and experience totals with evidence and an as-of date rather than storing permanently stale counters.
+- Import only verified contact details and profile links. Reject placeholder links and generated search-result URLs from the structured handoff.
+- Normalize faculty photos and detailed-profile PDFs into Media records before importing faculty drafts.
 
 ## Infrastructure
 

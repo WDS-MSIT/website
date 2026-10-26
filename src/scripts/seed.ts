@@ -4,6 +4,7 @@ import { getPayload } from 'payload'
 
 import config from '@/payload.config'
 import { seedDepartments } from '@/seed/departments'
+import { seedFaculty } from '@/seed/faculty'
 
 const requiredEnv = (name: string): string => {
   const value = process.env[name]
@@ -64,6 +65,7 @@ const seed = async (): Promise<void> => {
 
     payload.logger.info(`Seeded superadmin ${email}`)
     await seedDepartments(payload)
+    await seedFaculty(payload)
   } finally {
     await payload.destroy()
   }

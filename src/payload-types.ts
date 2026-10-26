@@ -69,6 +69,7 @@ export interface Config {
   collections: {
     users: User;
     departments: Department;
+    faculty: Faculty;
     media: Media;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -79,6 +80,7 @@ export interface Config {
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
     departments: DepartmentsSelect<false> | DepartmentsSelect<true>;
+    faculty: FacultySelect<false> | FacultySelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -182,6 +184,44 @@ export interface Department {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faculty".
+ */
+export interface Faculty {
+  id: number;
+  name: string;
+  slug: string;
+  department: number | Department;
+  /**
+   * Academic rank, such as Professor or Associate Professor.
+   */
+  designation: string;
+  qualifications?:
+    | {
+        qualification: string;
+        id?: string | null;
+      }[]
+    | null;
+  email?: string | null;
+  biography?: string | null;
+  photo?: (number | null) | Media;
+  /**
+   * A reviewed CV or detailed-profile document from the Media collection.
+   */
+  detailedProfile?: (number | null) | Media;
+  /**
+   * The identifier from the national VIDWAN expert database.
+   */
+  vidwanId?: string | null;
+  /**
+   * Order within the faculty member’s department.
+   */
+  sortOrder: number;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "media".
  */
 export interface Media {
@@ -231,6 +271,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'departments';
         value: number | Department;
+      } | null)
+    | ({
+        relationTo: 'faculty';
+        value: number | Faculty;
       } | null)
     | ({
         relationTo: 'media';
@@ -321,6 +365,31 @@ export interface DepartmentsSelect<T extends boolean = true> {
         id?: T;
       };
   legacyPath?: T;
+  sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "faculty_select".
+ */
+export interface FacultySelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  department?: T;
+  designation?: T;
+  qualifications?:
+    | T
+    | {
+        qualification?: T;
+        id?: T;
+      };
+  email?: T;
+  biography?: T;
+  photo?: T;
+  detailedProfile?: T;
+  vidwanId?: T;
   sortOrder?: T;
   updatedAt?: T;
   createdAt?: T;

@@ -1,19 +1,7 @@
-import type { Access, CollectionConfig } from 'payload'
+import type { CollectionConfig } from 'payload'
 
+import { publishedOrSuperadmin } from '@/access/content'
 import { superadminOnly } from '@/access/users'
-import { isActiveSuperadmin } from '@/auth/roles'
-
-const publishedOrSuperadmin: Access = ({ req }) => {
-  if (isActiveSuperadmin(req.user)) {
-    return true
-  }
-
-  return {
-    _status: {
-      equals: 'published',
-    },
-  }
-}
 
 export const Departments: CollectionConfig = {
   slug: 'departments',
