@@ -19,12 +19,12 @@ Use this format:
 
 Delete or revise a preference when the user explicitly changes it. Keep this file short enough that an agent can apply every active entry.
 
-## Keep temporary agent output outside the repository
+## Keep temporary work reviewable inside the repository
 
-- Instruction: Store temporary reports, scratch decisions, and other agent-only output in `../agent-output/msit-website/`, not in a Git-ignored directory inside this repository.
-- Applies when: Work needs a temporary written artifact that does not belong in project history.
-- Reason: The surrounding workspace is available and keeps the application repository free of agent-only scaffolding.
-- Confirmed: 2026-10-26
+- Instruction: Keep project work inside this Git repository. Work awaiting review stays in its intended location as ordinary uncommitted Git changes. Put temporary written notes or reports under `docs/drafts/`; before committing, delete them or assimilate useful material into the appropriate durable document. Never commit `docs/drafts/` or move unreviewed implementation outside the repository.
+- Applies when: Any implementation or documentation work is unfinished or awaiting review.
+- Reason: Git's working tree is the review boundary. Temporary notes may support the work, but they must not replace or contain the only copy of project changes.
+- Confirmed: 2026-10-27
 
 ## Build a working vertical slice before adding depth
 

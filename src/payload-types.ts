@@ -71,6 +71,7 @@ export interface Config {
     departments: Department;
     faculty: Faculty;
     media: Media;
+    committees: Committee;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -82,6 +83,7 @@ export interface Config {
     departments: DepartmentsSelect<false> | DepartmentsSelect<true>;
     faculty: FacultySelect<false> | FacultySelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    committees: CommitteesSelect<false> | CommitteesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -242,6 +244,38 @@ export interface Media {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "committees".
+ */
+export interface Committee {
+  id: number;
+  name: string;
+  slug: string;
+  members?:
+    | {
+        name: string;
+        designation?: string | null;
+        committeeRole?: string | null;
+        phone?: string | null;
+        email?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  links?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  sourceUrl?: string | null;
+  sourceSnapshotFile?: string | null;
+  legacyPath?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -279,6 +313,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'media';
         value: number | Media;
+      } | null)
+    | ({
+        relationTo: 'committees';
+        value: number | Committee;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -413,6 +451,37 @@ export interface MediaSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "committees_select".
+ */
+export interface CommitteesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  members?:
+    | T
+    | {
+        name?: T;
+        designation?: T;
+        committeeRole?: T;
+        phone?: T;
+        email?: T;
+        id?: T;
+      };
+  links?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  sourceUrl?: T;
+  sourceSnapshotFile?: T;
+  legacyPath?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

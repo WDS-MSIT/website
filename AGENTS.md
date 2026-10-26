@@ -73,6 +73,6 @@ State what was verified, what was not verified, and why. Do not present an incon
 
 Put team collaboration choices in `docs/AGENT_PREFERENCES.md`, code conventions in `docs/CODE_STYLE.md`, and accepted architecture decisions in `docs/ARCHITECTURE_DECISIONS.md`.
 
-Put temporary agent reports and decision logs outside this Git repository at `../agent-output/msit-website/`. Move reviewed material into the appropriate durable document only when it belongs in project history.
+Keep all project work inside this Git repository. Work awaiting review stays in its intended location as ordinary uncommitted Git changes; unreviewed implementation is not temporary output. If temporary written notes or reports are needed, keep them under `docs/drafts/`. Before committing, delete those drafts or assimilate the useful parts into the appropriate durable document. Do not commit `docs/drafts/` or create a parallel project tree outside the repository.
 
 Do not add secrets, credentials, private transcript excerpts, personal identifiers, machine-specific absolute paths, or organization-internal links to committed instruction files.

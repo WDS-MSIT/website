@@ -7,6 +7,7 @@ import { fileURLToPath } from 'url'
 import sharp from 'sharp'
 
 import { Departments } from './collections/Departments'
+import { Committees } from './collections/Committees'
 import { Faculty } from './collections/Faculty'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
@@ -41,7 +42,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Departments, Faculty, Media],
+  collections: [Users, Departments, Faculty, Media, Committees],
   editor: lexicalEditor(),
   graphQL: {
     disable: true,
