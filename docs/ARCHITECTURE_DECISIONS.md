@@ -120,3 +120,82 @@ Migration code must retain stable source keys and provenance, produce diagnostic
 ### Verification
 
 Confirm that migration runs do not modify `docs/references/`, every imported record retains source metadata, and repeated imports do not create duplicates.
+
+## ADR-004: Use hierarchical roles with domain scope
+
+- Status: accepted
+- Date: 2026-10-26
+- Supersedes: none
+- Related files: `src/collections/Users.ts`, `docs/TODO.md`
+
+### Context
+
+The CMS has institute-wide resources, department resources, placement resources, society resources, and contributors who work inside one of those domains. A user's authority and a user's scope are separate facts.
+
+The first version does not need users who combine manager roles across different domains. It does need department managers who manage more than one department.
+
+### Decision
+
+Use this role hierarchy:
+
+1. `superadmin`
+2. `site-manager`
+3. `department-manager`, `placement-manager`, and `society-manager` at the same level
+4. `contributor`
+
+Higher roles inherit the permissions of lower roles when the resource belongs to their authority.
+
+The `superadmin` can manage every resource, including users and access. The `site-manager` can manage all website content but cannot perform superadmin-only account and system operations.
+
+Each domain manager can manage, approve, and publish content inside that manager's domain. A department manager can manage one or more assigned departments. A placement manager manages the placement domain. A society manager can manage one or more assigned societies. Domain managers cannot manage unrelated domains, site-wide controls, or accounts.
+
+A contributor belongs to one scope type: department, placement, or society. A contributor can create and update work inside the assigned scope. A manager must approve the contributor's work before publication.
+
+Students always receive the `contributor` role. Students never receive a manager role.
+
+The first version assigns one role to each user. It does not support a user who is both a department manager and a society manager. Scope can contain more than one resource within the role's domain, such as two assigned departments.
+
+### Alternatives considered
+
+- A flat role list would repeat permissions and would not express inherited authority.
+- One role for each department or society would mix authority with scope and would create many roles.
+- Multiple manager roles per user would add access combinations that the first version does not need.
+
+### Consequences
+
+The user model needs one role plus fields that match the role's scope. Access functions must check both values.
+
+Contributor changes need a review state or draft workflow. A domain manager approves work in the same domain. A site manager or superadmin can approve work in any content domain.
+
+The implementation must reject mismatched states, such as a `department-manager` with society scope. Cross-domain manager assignments remain deferred.
+
+### Verification
+
+Test the hierarchy at collection and document level. Each test must cover an allowed action, a denied action in an unrelated scope, and inheritance by each higher role. Test that contributor work cannot become public without manager approval.
+
+## ADR-005: Do not expose GraphQL
+
+- Status: accepted
+- Date: 2026-10-26
+- Supersedes: none
+- Related files: `src/payload.config.ts`, `src/app/(payload)/api/`, `package.json`
+
+### Context
+
+The project does not have a GraphQL client or a planned GraphQL use case. Payload's Local API and REST API cover the current server and public-site needs.
+
+### Decision
+
+Disable Payload's GraphQL support and do not expose the GraphQL or GraphQL Playground routes. Do not keep a direct `graphql` dependency.
+
+### Alternatives considered
+
+- Keeping GraphQL enabled would retain an unused endpoint, dependency, and API contract.
+
+### Consequences
+
+Use the Local API inside the application and use REST for external requests. Reconsider GraphQL only if a concrete client requires it.
+
+### Verification
+
+Confirm that `src/payload.config.ts` disables GraphQL, the Next.js application has no GraphQL route, and `package.json` has no direct `graphql` dependency.

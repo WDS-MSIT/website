@@ -11,11 +11,12 @@ Payload CMS and Next.js foundation for the Maharaja Surajmal Institute of Techno
 
 ## Local development
 
-1. Copy `.env.example` to `.env` and replace `PAYLOAD_SECRET`.
-2. Start PostgreSQL and MinIO with `docker compose up -d postgres minio minio-init`.
-3. Install dependencies with `pnpm install`.
-4. Start the app with `pnpm dev`.
-5. Open `http://localhost:3000/admin` and create the first administrator.
+1. Copy `.env.example` to `.env` and replace `PAYLOAD_SECRET` and the `SUPERADMIN_*` values.
+2. Install dependencies with `pnpm install`.
+3. Start PostgreSQL and MinIO with `docker compose up -d postgres minio minio-init`.
+4. Create or update the bootstrap account with `pnpm seed`.
+5. Start the app with `pnpm dev`.
+6. Open `http://localhost:3000/admin` and sign in with the seeded account.
 
 The MinIO API is available on port 9000 and its console is at `http://localhost:9001`. The default local credentials are only for development.
 
@@ -24,8 +25,8 @@ For production R2, replace the `S3_*` values with the R2 bucket, endpoint, and c
 ## Useful commands
 
 - `pnpm lint` checks the source with ESLint.
-- `pnpm test:int` runs integration tests.
-- `pnpm test:e2e` runs Playwright tests.
+- `pnpm test` runs the focused security tests.
+- `pnpm seed` creates or updates the bootstrap superadmin.
 - `pnpm generate:types` regenerates Payload types after schema changes.
 - `pnpm payload migrate:create` creates a database migration.
 

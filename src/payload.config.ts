@@ -41,6 +41,9 @@ export default buildConfig({
   },
   collections: [Users, Media],
   editor: lexicalEditor(),
+  graphQL: {
+    disable: true,
+  },
   secret: process.env.PAYLOAD_SECRET || '',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),

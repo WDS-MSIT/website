@@ -25,3 +25,17 @@ Delete or revise a preference when the user explicitly changes it. Keep this fil
 - Applies when: Work needs a temporary written artifact that does not belong in project history.
 - Reason: The surrounding workspace is available and keeps the application repository free of agent-only scaffolding.
 - Confirmed: 2026-10-26
+
+## Build a working vertical slice before adding depth
+
+- Instruction: Take one feature through every layer it needs, including its schema, database behavior, access rules, Admin UI, API, storage, and tests. Get that path working before adding more detail to each layer.
+- Applies when: Planning and implementing features in this project.
+- Reason: A working path exposes integration problems early. Later passes can deepen authentication, persistence, storage, and other shared systems with evidence from real features.
+- Confirmed: 2026-10-26
+
+## Test failures with severe consequences
+
+- Instruction: Prefer a small test suite for failures that would cause data loss, security breaches, broken access boundaries, or unrecoverable behavior. Do not add tests for ordinary behavior that daily development will expose quickly.
+- Applies when: Choosing automated tests for this project.
+- Reason: The user wants the test suite to protect high-cost failures without becoming a broad maintenance burden.
+- Confirmed: 2026-10-26
