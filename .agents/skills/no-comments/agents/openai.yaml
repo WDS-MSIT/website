@@ -1,0 +1,6 @@
+interface:
+  display_name: "No Comments"
+  short_description: "Audit comments and propose evidence-based cleanup"
+  default_prompt: "Use $no-comments to audit this diff and wait for my approval before editing it."
+policy:
+  allow_implicit_invocation: false

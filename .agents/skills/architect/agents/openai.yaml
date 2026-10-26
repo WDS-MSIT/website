@@ -1,0 +1,6 @@
+interface:
+  display_name: "Architect"
+  short_description: "Design and review architecture before implementation"
+  default_prompt: "Use $architect to design this change and stop for my approval before implementation."
+policy:
+  allow_implicit_invocation: false

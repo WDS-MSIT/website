@@ -1,0 +1,6 @@
+interface:
+  display_name: "Correct"
+  short_description: "Find and prevent recurring repository mistakes"
+  default_prompt: "Use $correct to identify recurring mistake classes and wait for my approval before making changes."
+policy:
+  allow_implicit_invocation: false

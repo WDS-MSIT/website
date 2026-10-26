@@ -1,0 +1,15 @@
+{
+  "$schema": "https://opencode.ai/config.json",
+  "permission": {
+    "skill": {
+      "*": "allow",
+      "architect": "ask",
+      "correct": "ask",
+      "catchup": "ask",
+      "no-comments": "ask",
+      "recall": "ask",
+      "sharpen": "ask",
+      "show-me-your-work": "ask"
+    }
+  }
+}

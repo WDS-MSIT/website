@@ -1,0 +1,6 @@
+interface:
+  display_name: "Catchup"
+  short_description: "Summarize progress and pending user decisions"
+  default_prompt: "Use $catchup to catch me up on this conversation and list decisions waiting on me."
+policy:
+  allow_implicit_invocation: false
