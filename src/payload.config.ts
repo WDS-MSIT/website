@@ -9,6 +9,7 @@ import sharp from 'sharp'
 import { Departments } from './collections/Departments'
 import { Committees } from './collections/Committees'
 import { Faculty } from './collections/Faculty'
+import { Facilities } from './collections/Facilities'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 
@@ -42,7 +43,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Departments, Faculty, Media, Committees],
+  collections: [Users, Departments, Faculty, Media, Committees, Facilities],
   editor: lexicalEditor(),
   graphQL: {
     disable: true,

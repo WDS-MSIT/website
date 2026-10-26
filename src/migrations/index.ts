@@ -2,6 +2,7 @@ import * as migration_20261026_151210_auth_foundation from './20261026_151210_au
 import * as migration_20261026_155135_departments from './20261026_155135_departments';
 import * as migration_20261026_181357_faculty from './20261026_181357_faculty';
 import * as migration_20261026_183724_committees from './20261026_183724_committees';
+import * as migration_20261026_191949_facilities from './20261026_191949_facilities';
 
 export const migrations = [
   {
@@ -22,6 +23,11 @@ export const migrations = [
   {
     up: migration_20261026_183724_committees.up,
     down: migration_20261026_183724_committees.down,
-    name: '20261026_183724_committees'
+    name: '20261026_183724_committees',
+  },
+  {
+    up: migration_20261026_191949_facilities.up,
+    down: migration_20261026_191949_facilities.down,
+    name: '20261026_191949_facilities'
   },
 ];

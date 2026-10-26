@@ -72,6 +72,7 @@ export interface Config {
     faculty: Faculty;
     media: Media;
     committees: Committee;
+    facilities: Facility;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,6 +85,7 @@ export interface Config {
     faculty: FacultySelect<false> | FacultySelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     committees: CommitteesSelect<false> | CommitteesSelect<true>;
+    facilities: FacilitiesSelect<false> | FacilitiesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -229,7 +231,6 @@ export interface Faculty {
 export interface Media {
   id: number;
   alt: string;
-  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -267,6 +268,113 @@ export interface Committee {
         id?: string | null;
       }[]
     | null;
+  sourceUrl?: string | null;
+  sourceSnapshotFile?: string | null;
+  legacyPath?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "facilities".
+ */
+export interface Facility {
+  id: number;
+  name: string;
+  slug: string;
+  type?:
+    ('laboratory' | 'library' | 'hostel' | 'staff-accommodation' | 'canteen' | 'sports' | 'medical' | 'bank') | null;
+  department?: (number | null) | Department;
+  /**
+   * General introduction and services for this facility.
+   */
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  lab?: {
+    equipment?: {
+      root: {
+        type: string;
+        children: {
+          type: any;
+          version: number;
+          [k: string]: unknown;
+        }[];
+        direction: ('ltr' | 'rtl') | null;
+        format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+        indent: number;
+        version: number;
+      };
+      [k: string]: unknown;
+    } | null;
+    descriptions?:
+      | {
+          name: string;
+          description?: {
+            root: {
+              type: string;
+              children: {
+                type: any;
+                version: number;
+                [k: string]: unknown;
+              }[];
+              direction: ('ltr' | 'rtl') | null;
+              format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+              indent: number;
+              version: number;
+            };
+            [k: string]: unknown;
+          } | null;
+          id?: string | null;
+        }[]
+      | null;
+    subjects?:
+      | {
+          name: string;
+          code?: string | null;
+          classSemester?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+    software?:
+      | {
+          name: string;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  gallery?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * An explicit room or facility location from the source.
+   */
+  location?: string | null;
+  links?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  sortOrder: number;
   sourceUrl?: string | null;
   sourceSnapshotFile?: string | null;
   legacyPath?: string | null;
@@ -317,6 +425,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'committees';
         value: number | Committee;
+      } | null)
+    | ({
+        relationTo: 'facilities';
+        value: number | Facility;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -439,7 +551,6 @@ export interface FacultySelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
-  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -476,6 +587,65 @@ export interface CommitteesSelect<T extends boolean = true> {
         url?: T;
         id?: T;
       };
+  sourceUrl?: T;
+  sourceSnapshotFile?: T;
+  legacyPath?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "facilities_select".
+ */
+export interface FacilitiesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  type?: T;
+  department?: T;
+  description?: T;
+  lab?:
+    | T
+    | {
+        equipment?: T;
+        descriptions?:
+          | T
+          | {
+              name?: T;
+              description?: T;
+              id?: T;
+            };
+        subjects?:
+          | T
+          | {
+              name?: T;
+              code?: T;
+              classSemester?: T;
+              id?: T;
+            };
+        software?:
+          | T
+          | {
+              name?: T;
+              id?: T;
+            };
+      };
+  gallery?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
+  location?: T;
+  links?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  sortOrder?: T;
   sourceUrl?: T;
   sourceSnapshotFile?: T;
   legacyPath?: T;
