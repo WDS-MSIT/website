@@ -71,8 +71,10 @@ export interface Config {
     departments: Department;
     faculty: Faculty;
     media: Media;
+    documents: Document;
     committees: Committee;
     facilities: Facility;
+    updates: Update;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -84,8 +86,10 @@ export interface Config {
     departments: DepartmentsSelect<false> | DepartmentsSelect<true>;
     faculty: FacultySelect<false> | FacultySelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
+    documents: DocumentsSelect<false> | DocumentsSelect<true>;
     committees: CommitteesSelect<false> | CommitteesSelect<true>;
     facilities: FacilitiesSelect<false> | FacilitiesSelect<true>;
+    updates: UpdatesSelect<false> | UpdatesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -231,8 +235,42 @@ export interface Faculty {
 export interface Media {
   id: number;
   alt: string;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents".
+ */
+export interface Document {
+  id: number;
+  title: string;
+  description?: string | null;
+  /**
+   * Leave empty for institute-wide documents.
+   */
+  department?: (number | null) | Department;
+  reviewStatus: 'unreviewed' | 'needs-confirmation' | 'verified' | 'rejected';
+  /**
+   * The file URL on the previous website, when one exists.
+   */
+  legacyUrl?: string | null;
+  sourceUrl?: string | null;
+  sourceSnapshotFile?: string | null;
+  _objectKey?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
   url?: string | null;
   thumbnailURL?: string | null;
   filename?: string | null;
@@ -384,6 +422,76 @@ export interface Facility {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "updates".
+ */
+export interface Update {
+  id: number;
+  type: 'news' | 'notice' | 'achievement';
+  title: string;
+  slug: string;
+  /**
+   * Short listing and sharing summary. Do not duplicate the full body.
+   */
+  excerpt?: string | null;
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Leave blank when the source does not provide a verified publication date.
+   */
+  publicationDate?: string | null;
+  /**
+   * The public site can use this to remove an item from current listings without deleting its historical page.
+   */
+  expiryDate?: string | null;
+  /**
+   * Allows deliberate homepage promotion; it is not inferred from legacy “new” markers.
+   */
+  featured?: boolean | null;
+  /**
+   * Ordered supporting notices, circulars, reports, or other reviewed documents.
+   */
+  attachments?: (number | Document)[] | null;
+  /**
+   * Temporary links to files still hosted on msit.in. Migrate these to Documents before retiring the old file host.
+   */
+  legacyAttachments?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional registration, application, or other non-file destination.
+   */
+  externalLink?: string | null;
+  thumbnail?: (number | null) | Media;
+  reviewStatus: 'unreviewed' | 'needs-confirmation' | 'verified' | 'rejected';
+  sourceUrl?: string | null;
+  sourceSnapshotFile?: string | null;
+  /**
+   * Original position in the saved legacy list; lower numbers appeared first.
+   */
+  sourceOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -423,12 +531,20 @@ export interface PayloadLockedDocument {
         value: number | Media;
       } | null)
     | ({
+        relationTo: 'documents';
+        value: number | Document;
+      } | null)
+    | ({
         relationTo: 'committees';
         value: number | Committee;
       } | null)
     | ({
         relationTo: 'facilities';
         value: number | Facility;
+      } | null)
+    | ({
+        relationTo: 'updates';
+        value: number | Update;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -551,8 +667,35 @@ export interface FacultySelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
+  url?: T;
+  thumbnailURL?: T;
+  filename?: T;
+  mimeType?: T;
+  filesize?: T;
+  width?: T;
+  height?: T;
+  focalX?: T;
+  focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents_select".
+ */
+export interface DocumentsSelect<T extends boolean = true> {
+  title?: T;
+  description?: T;
+  department?: T;
+  reviewStatus?: T;
+  legacyUrl?: T;
+  sourceUrl?: T;
+  sourceSnapshotFile?: T;
+  _objectKey?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
   url?: T;
   thumbnailURL?: T;
   filename?: T;
@@ -649,6 +792,37 @@ export interface FacilitiesSelect<T extends boolean = true> {
   sourceUrl?: T;
   sourceSnapshotFile?: T;
   legacyPath?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "updates_select".
+ */
+export interface UpdatesSelect<T extends boolean = true> {
+  type?: T;
+  title?: T;
+  slug?: T;
+  excerpt?: T;
+  body?: T;
+  publicationDate?: T;
+  expiryDate?: T;
+  featured?: T;
+  attachments?: T;
+  legacyAttachments?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  externalLink?: T;
+  thumbnail?: T;
+  reviewStatus?: T;
+  sourceUrl?: T;
+  sourceSnapshotFile?: T;
+  sourceOrder?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;

@@ -8,10 +8,12 @@ import sharp from 'sharp'
 
 import { Departments } from './collections/Departments'
 import { Committees } from './collections/Committees'
+import { Documents } from './collections/Documents'
 import { Faculty } from './collections/Faculty'
 import { Facilities } from './collections/Facilities'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
+import { Updates } from './collections/Updates'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -43,7 +45,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Departments, Faculty, Media, Committees, Facilities],
+  collections: [Users, Departments, Faculty, Media, Documents, Committees, Facilities, Updates],
   editor: lexicalEditor(),
   graphQL: {
     disable: true,
@@ -62,6 +64,7 @@ export default buildConfig({
     s3Storage({
       enabled: storage !== null,
       collections: {
+        documents: true,
         media: true,
       },
       bucket: storage?.bucket || '',

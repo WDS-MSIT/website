@@ -24,7 +24,14 @@ Keep work here only when the project has chosen to postpone it. Remove an item w
 
 - Decide how to represent publication, patent, citation, and experience totals with evidence and an as-of date rather than storing permanently stale counters.
 - Import only verified contact details and profile links. Reject placeholder links and generated search-result URLs from the structured handoff.
-- Normalize faculty photos and detailed-profile PDFs into Media records before importing faculty drafts.
+- Normalize faculty photos into Media and detailed-profile PDFs into Documents before importing faculty drafts.
+
+## Document content
+
+- Define the document category taxonomy after reviewing the legacy document inventory.
+- Add publication date, academic year, language, and supersession metadata when their editorial rules are agreed.
+- Migrate seeded `legacyAttachments` from `msit.in` into reviewed Documents before retiring the old file host.
+- Download, validate, deduplicate, and review legacy files when S3/R2 migration work begins.
 
 ## Infrastructure
 
