@@ -99,8 +99,14 @@ export interface Config {
     defaultIDType: number;
   };
   fallbackLocale: null;
-  globals: {};
-  globalsSelect: {};
+  globals: {
+    'site-settings': SiteSetting;
+    homepage: Homepage;
+  };
+  globalsSelect: {
+    'site-settings': SiteSettingsSelect<false> | SiteSettingsSelect<true>;
+    homepage: HomepageSelect<false> | HomepageSelect<true>;
+  };
   locale: null;
   widgets: {
     collections: CollectionsWidget;
@@ -235,7 +241,6 @@ export interface Faculty {
 export interface Media {
   id: number;
   alt: string;
-  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -267,7 +272,6 @@ export interface Document {
   legacyUrl?: string | null;
   sourceUrl?: string | null;
   sourceSnapshotFile?: string | null;
-  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -667,7 +671,6 @@ export interface FacultySelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
-  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -692,7 +695,6 @@ export interface DocumentsSelect<T extends boolean = true> {
   legacyUrl?: T;
   sourceUrl?: T;
   sourceSnapshotFile?: T;
-  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -866,6 +868,350 @@ export interface PayloadMigrationsSelect<T extends boolean = true> {
   batch?: T;
   updatedAt?: T;
   createdAt?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings".
+ */
+export interface SiteSetting {
+  id: number;
+  instituteName: string;
+  logo?: (number | null) | Media;
+  /**
+   * Temporary source URL until the logo is migrated into Media.
+   */
+  legacyLogoUrl?: string | null;
+  /**
+   * The affiliation, accreditation and approval line shown in the header.
+   */
+  affiliationSummary?: string | null;
+  address?: string | null;
+  /**
+   * Public contact lines such as reception, placement cell and email.
+   */
+  contactLines?:
+    | {
+        label: string;
+        value: string;
+        /**
+         * Optional tel: or mailto: destination.
+         */
+        href?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * The compact institutional links shown above the main navigation.
+   */
+  utilityLinks?:
+    | {
+        label: string;
+        destinationType: 'internal-path' | 'external-url' | 'document';
+        /**
+         * A site path beginning with /, such as /contact.
+         */
+        internalPath?: string | null;
+        externalUrl?: string | null;
+        document?: (number | null) | Document;
+        openInNewTab?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * The main site navigation, in display order.
+   */
+  primaryLinks?:
+    | {
+        label: string;
+        destinationType: 'internal-path' | 'external-url' | 'document';
+        /**
+         * A site path beginning with /, such as /contact.
+         */
+        internalPath?: string | null;
+        externalUrl?: string | null;
+        document?: (number | null) | Document;
+        openInNewTab?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Grouped links for audience menus, sidebars or expanded navigation.
+   */
+  navigationGroups?:
+    | {
+        label: string;
+        links?:
+          | {
+              label: string;
+              destinationType: 'internal-path' | 'external-url' | 'document';
+              /**
+               * A site path beginning with /, such as /contact.
+               */
+              internalPath?: string | null;
+              externalUrl?: string | null;
+              document?: (number | null) | Document;
+              openInNewTab?: boolean | null;
+              id?: string | null;
+            }[]
+          | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Short site-wide messages. The frontend chooses how to present them.
+   */
+  announcements?:
+    | {
+        message: string;
+        destinationType: 'none' | 'internal-path' | 'external-url' | 'document';
+        /**
+         * A site path beginning with /, such as /contact.
+         */
+        internalPath?: string | null;
+        externalUrl?: string | null;
+        document?: (number | null) | Document;
+        openInNewTab?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Copyright or institutional text. The frontend supplies the current year.
+   */
+  footerText?: string | null;
+  footerLinks?:
+    | {
+        label: string;
+        destinationType: 'internal-path' | 'external-url' | 'document';
+        /**
+         * A site path beginning with /, such as /contact.
+         */
+        internalPath?: string | null;
+        externalUrl?: string | null;
+        document?: (number | null) | Document;
+        openInNewTab?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  reviewStatus: 'unreviewed' | 'needs-confirmation' | 'verified' | 'rejected';
+  sourceUrl?: string | null;
+  sourceSnapshotFile?: string | null;
+  _status?: ('draft' | 'published') | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage".
+ */
+export interface Homepage {
+  id: number;
+  heading: string;
+  /**
+   * Ordered homepage highlights. Use Media after assets are migrated.
+   */
+  heroSlides?:
+    | {
+        caption: string;
+        image?: (number | null) | Media;
+        /**
+         * Temporary source URL until the image is migrated into Media.
+         */
+        legacyImageUrl?: string | null;
+        destinationType: 'none' | 'internal-path' | 'external-url' | 'document';
+        /**
+         * A site path beginning with /, such as /contact.
+         */
+        internalPath?: string | null;
+        externalUrl?: string | null;
+        document?: (number | null) | Document;
+        openInNewTab?: boolean | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Homepage feeds such as Latest News, Achievements and Notices.
+   */
+  updateSections?:
+    | {
+        heading: string;
+        updateType: 'news' | 'notice' | 'achievement';
+        selectionMode: 'latest' | 'manual';
+        itemLimit?: number | null;
+        /**
+         * Order these records as they should appear on the homepage.
+         */
+        selectedUpdates?: (number | Update)[] | null;
+        /**
+         * Optional internal destination for the View all action.
+         */
+        viewAllPath?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  campusTour?: {
+    heading?: string | null;
+    /**
+     * The current site uses a YouTube embed.
+     */
+    videoUrl?: string | null;
+    gallery?:
+      | {
+          caption?: string | null;
+          image?: (number | null) | Media;
+          /**
+           * Temporary source URL until the image is migrated into Media.
+           */
+          legacyImageUrl?: string | null;
+          id?: string | null;
+        }[]
+      | null;
+  };
+  reviewStatus: 'unreviewed' | 'needs-confirmation' | 'verified' | 'rejected';
+  sourceUrl?: string | null;
+  sourceSnapshotFile?: string | null;
+  _status?: ('draft' | 'published') | null;
+  updatedAt?: string | null;
+  createdAt?: string | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "site-settings_select".
+ */
+export interface SiteSettingsSelect<T extends boolean = true> {
+  instituteName?: T;
+  logo?: T;
+  legacyLogoUrl?: T;
+  affiliationSummary?: T;
+  address?: T;
+  contactLines?:
+    | T
+    | {
+        label?: T;
+        value?: T;
+        href?: T;
+        id?: T;
+      };
+  utilityLinks?:
+    | T
+    | {
+        label?: T;
+        destinationType?: T;
+        internalPath?: T;
+        externalUrl?: T;
+        document?: T;
+        openInNewTab?: T;
+        id?: T;
+      };
+  primaryLinks?:
+    | T
+    | {
+        label?: T;
+        destinationType?: T;
+        internalPath?: T;
+        externalUrl?: T;
+        document?: T;
+        openInNewTab?: T;
+        id?: T;
+      };
+  navigationGroups?:
+    | T
+    | {
+        label?: T;
+        links?:
+          | T
+          | {
+              label?: T;
+              destinationType?: T;
+              internalPath?: T;
+              externalUrl?: T;
+              document?: T;
+              openInNewTab?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  announcements?:
+    | T
+    | {
+        message?: T;
+        destinationType?: T;
+        internalPath?: T;
+        externalUrl?: T;
+        document?: T;
+        openInNewTab?: T;
+        id?: T;
+      };
+  footerText?: T;
+  footerLinks?:
+    | T
+    | {
+        label?: T;
+        destinationType?: T;
+        internalPath?: T;
+        externalUrl?: T;
+        document?: T;
+        openInNewTab?: T;
+        id?: T;
+      };
+  reviewStatus?: T;
+  sourceUrl?: T;
+  sourceSnapshotFile?: T;
+  _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "homepage_select".
+ */
+export interface HomepageSelect<T extends boolean = true> {
+  heading?: T;
+  heroSlides?:
+    | T
+    | {
+        caption?: T;
+        image?: T;
+        legacyImageUrl?: T;
+        destinationType?: T;
+        internalPath?: T;
+        externalUrl?: T;
+        document?: T;
+        openInNewTab?: T;
+        id?: T;
+      };
+  updateSections?:
+    | T
+    | {
+        heading?: T;
+        updateType?: T;
+        selectionMode?: T;
+        itemLimit?: T;
+        selectedUpdates?: T;
+        viewAllPath?: T;
+        id?: T;
+      };
+  campusTour?:
+    | T
+    | {
+        heading?: T;
+        videoUrl?: T;
+        gallery?:
+          | T
+          | {
+              caption?: T;
+              image?: T;
+              legacyImageUrl?: T;
+              id?: T;
+            };
+      };
+  reviewStatus?: T;
+  sourceUrl?: T;
+  sourceSnapshotFile?: T;
+  _status?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  globalType?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

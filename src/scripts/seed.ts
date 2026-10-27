@@ -7,6 +7,8 @@ import { seedDepartments } from '@/seed/departments'
 import { seedFaculty } from '@/seed/faculty'
 import { seedCommittees } from '@/seed/committees'
 import { seedFacilities } from '@/seed/facilities'
+import { seedHomepage } from '@/seed/homepage'
+import { seedSiteSettings } from '@/seed/site-settings'
 import { seedUpdates } from '@/seed/updates'
 
 const requiredEnv = (name: string): string => {
@@ -72,6 +74,8 @@ const seed = async (): Promise<void> => {
     await seedCommittees(payload)
     await seedFacilities(payload)
     await seedUpdates(payload)
+    await seedSiteSettings(payload)
+    await seedHomepage(payload)
   } finally {
     await payload.destroy()
   }

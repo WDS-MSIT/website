@@ -14,6 +14,8 @@ import { Facilities } from './collections/Facilities'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Updates } from './collections/Updates'
+import { Homepage } from './globals/Homepage'
+import { SiteSettings } from './globals/SiteSettings'
 
 const filename = fileURLToPath(import.meta.url)
 const dirname = path.dirname(filename)
@@ -46,6 +48,7 @@ export default buildConfig({
     },
   },
   collections: [Users, Departments, Faculty, Media, Documents, Committees, Facilities, Updates],
+  globals: [SiteSettings, Homepage],
   editor: lexicalEditor(),
   graphQL: {
     disable: true,
