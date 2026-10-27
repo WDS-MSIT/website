@@ -73,6 +73,7 @@ export interface Config {
     media: Media;
     committees: Committee;
     facilities: Facility;
+    societies: Society;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -86,6 +87,7 @@ export interface Config {
     media: MediaSelect<false> | MediaSelect<true>;
     committees: CommitteesSelect<false> | CommitteesSelect<true>;
     facilities: FacilitiesSelect<false> | FacilitiesSelect<true>;
+    societies: SocietiesSelect<false> | SocietiesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -384,6 +386,106 @@ export interface Facility {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "societies".
+ */
+export interface Society {
+  id: number;
+  name: string;
+  slug: string;
+  /**
+   * Editorial classification. The source page does not state a category.
+   */
+  category: 'cultural' | 'technical' | 'academic';
+  /**
+   * Short summary shown on listing cards. Imported summaries are verbatim excerpts.
+   */
+  overview?: string | null;
+  /**
+   * Full society profile from the source page.
+   */
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Use only when the source gives a full date.
+   */
+  foundedOn?: string | null;
+  /**
+   * Use only when the source gives a year but no full date.
+   */
+  foundedYear?: number | null;
+  facultyCoordinators?:
+    | {
+        name: string;
+        role?: string | null;
+        designation?: string | null;
+        department?: string | null;
+        email?: string | null;
+        faculty?: (number | null) | Faculty;
+        id?: string | null;
+      }[]
+    | null;
+  studentLeaders?:
+    | {
+        name: string;
+        role?: string | null;
+        /**
+         * Sub-society or department, when the source states one.
+         */
+        unit?: string | null;
+        department?: string | null;
+        email?: string | null;
+        phone?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  contact?: {
+    emails?:
+      | {
+          email: string;
+          id?: string | null;
+        }[]
+      | null;
+    phone?: string | null;
+  };
+  links?:
+    | {
+        label: string;
+        url: string;
+        type?: ('website' | 'social' | 'document' | 'form' | 'other') | null;
+        id?: string | null;
+      }[]
+    | null;
+  logo?: (number | null) | Media;
+  gallery?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  sortOrder: number;
+  sourceUrl?: string | null;
+  sourceSnapshotFile?: string | null;
+  legacyPath?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -429,6 +531,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'facilities';
         value: number | Facility;
+      } | null)
+    | ({
+        relationTo: 'societies';
+        value: number | Society;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -643,6 +749,75 @@ export interface FacilitiesSelect<T extends boolean = true> {
     | {
         label?: T;
         url?: T;
+        id?: T;
+      };
+  sortOrder?: T;
+  sourceUrl?: T;
+  sourceSnapshotFile?: T;
+  legacyPath?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "societies_select".
+ */
+export interface SocietiesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  category?: T;
+  overview?: T;
+  description?: T;
+  foundedOn?: T;
+  foundedYear?: T;
+  facultyCoordinators?:
+    | T
+    | {
+        name?: T;
+        role?: T;
+        designation?: T;
+        department?: T;
+        email?: T;
+        faculty?: T;
+        id?: T;
+      };
+  studentLeaders?:
+    | T
+    | {
+        name?: T;
+        role?: T;
+        unit?: T;
+        department?: T;
+        email?: T;
+        phone?: T;
+        id?: T;
+      };
+  contact?:
+    | T
+    | {
+        emails?:
+          | T
+          | {
+              email?: T;
+              id?: T;
+            };
+        phone?: T;
+      };
+  links?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        type?: T;
+        id?: T;
+      };
+  logo?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
         id?: T;
       };
   sortOrder?: T;

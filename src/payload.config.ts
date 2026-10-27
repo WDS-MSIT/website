@@ -10,6 +10,7 @@ import { Departments } from './collections/Departments'
 import { Committees } from './collections/Committees'
 import { Faculty } from './collections/Faculty'
 import { Facilities } from './collections/Facilities'
+import { Societies } from './collections/Societies'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 
@@ -43,7 +44,7 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Departments, Faculty, Media, Committees, Facilities],
+  collections: [Users, Departments, Faculty, Media, Committees, Facilities, Societies],
   editor: lexicalEditor(),
   graphQL: {
     disable: true,
