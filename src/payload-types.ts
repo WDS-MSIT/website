@@ -68,6 +68,7 @@ export interface Config {
   blocks: {};
   collections: {
     users: User;
+    pages: Page;
     departments: Department;
     faculty: Faculty;
     media: Media;
@@ -84,6 +85,7 @@ export interface Config {
   collectionsJoins: {};
   collectionsSelect: {
     users: UsersSelect<false> | UsersSelect<true>;
+    pages: PagesSelect<false> | PagesSelect<true>;
     departments: DepartmentsSelect<false> | DepartmentsSelect<true>;
     faculty: FacultySelect<false> | FacultySelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
@@ -168,6 +170,140 @@ export interface User {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages".
+ */
+export interface Page {
+  id: number;
+  title: string;
+  /**
+   * The public path without a leading slash, such as about/history.
+   */
+  slug: string;
+  /**
+   * A short introduction for listings and page metadata.
+   */
+  summary?: string | null;
+  content?:
+    | (RichTextBlock | CalloutBlock | LinkListBlock | DocumentListBlock | PageMediaBlock | TableBlock | EmbedBlock)[]
+    | null;
+  reviewStatus: 'unreviewed' | 'needs-confirmation' | 'verified' | 'rejected';
+  /**
+   * The corresponding path on the previous website.
+   */
+  legacyPath?: string | null;
+  sourceUrl?: string | null;
+  sourceSnapshotFile?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RichTextBlock".
+ */
+export interface RichTextBlock {
+  body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'rich-text';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CalloutBlock".
+ */
+export interface CalloutBlock {
+  heading?: string | null;
+  body: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  };
+  tone: 'neutral' | 'information' | 'important';
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'callout';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LinkListBlock".
+ */
+export interface LinkListBlock {
+  heading?: string | null;
+  links: {
+    label: string;
+    destinationType: 'page' | 'internal-path' | 'external-url' | 'document';
+    page?: (number | null) | Page;
+    /**
+     * A site path beginning with /, such as /contact.
+     */
+    internalPath?: string | null;
+    externalUrl?: string | null;
+    document?: (number | null) | Document;
+    openInNewTab?: boolean | null;
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'link-list';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "documents".
+ */
+export interface Document {
+  id: number;
+  title: string;
+  description?: string | null;
+  /**
+   * Leave empty for institute-wide documents.
+   */
+  department?: (number | null) | Department;
+  reviewStatus: 'unreviewed' | 'needs-confirmation' | 'verified' | 'rejected';
+  /**
+   * The file URL on the previous website, when one exists.
+   */
+  legacyUrl?: string | null;
+  sourceUrl?: string | null;
+  sourceSnapshotFile?: string | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "departments".
  */
 export interface Department {
@@ -197,6 +333,100 @@ export interface Department {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DocumentListBlock".
+ */
+export interface DocumentListBlock {
+  heading?: string | null;
+  documents?: (number | Document)[] | null;
+  /**
+   * Temporary source links until these files are migrated into Documents.
+   */
+  legacyDocuments?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'document-list';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PageMediaBlock".
+ */
+export interface PageMediaBlock {
+  image?: (number | null) | Media;
+  /**
+   * Temporary source URL until the image is migrated into Media.
+   */
+  legacyImageUrl?: string | null;
+  caption?: string | null;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'media';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "media".
+ */
+export interface Media {
+  id: number;
+  alt: string;
+  updatedAt: string;
+  createdAt: string;
+  url?: string | null;
+  thumbnailURL?: string | null;
+  filename?: string | null;
+  mimeType?: string | null;
+  filesize?: number | null;
+  width?: number | null;
+  height?: number | null;
+  focalX?: number | null;
+  focalY?: number | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TableBlock".
+ */
+export interface TableBlock {
+  /**
+   * A short accessible description of what the table contains.
+   */
+  caption?: string | null;
+  columns: {
+    heading: string;
+    id?: string | null;
+  }[];
+  rows: {
+    cells: {
+      value: string;
+      id?: string | null;
+    }[];
+    id?: string | null;
+  }[];
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'table';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EmbedBlock".
+ */
+export interface EmbedBlock {
+  provider: 'google-maps' | 'youtube';
+  url: string;
+  /**
+   * Describes the embedded content for assistive technology.
+   */
+  title: string;
+  id?: string | null;
+  blockName?: string | null;
+  blockType: 'embed';
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -235,57 +465,6 @@ export interface Faculty {
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "media".
- */
-export interface Media {
-  id: number;
-  alt: string;
-  updatedAt: string;
-  createdAt: string;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "documents".
- */
-export interface Document {
-  id: number;
-  title: string;
-  description?: string | null;
-  /**
-   * Leave empty for institute-wide documents.
-   */
-  department?: (number | null) | Department;
-  reviewStatus: 'unreviewed' | 'needs-confirmation' | 'verified' | 'rejected';
-  /**
-   * The file URL on the previous website, when one exists.
-   */
-  legacyUrl?: string | null;
-  sourceUrl?: string | null;
-  sourceSnapshotFile?: string | null;
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-  url?: string | null;
-  thumbnailURL?: string | null;
-  filename?: string | null;
-  mimeType?: string | null;
-  filesize?: number | null;
-  width?: number | null;
-  height?: number | null;
-  focalX?: number | null;
-  focalY?: number | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -649,6 +828,10 @@ export interface PayloadLockedDocument {
         value: number | User;
       } | null)
     | ({
+        relationTo: 'pages';
+        value: number | Page;
+      } | null)
+    | ({
         relationTo: 'departments';
         value: number | Department;
       } | null)
@@ -747,6 +930,139 @@ export interface UsersSelect<T extends boolean = true> {
         createdAt?: T;
         expiresAt?: T;
       };
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "pages_select".
+ */
+export interface PagesSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  summary?: T;
+  content?:
+    | T
+    | {
+        'rich-text'?: T | RichTextBlockSelect<T>;
+        callout?: T | CalloutBlockSelect<T>;
+        'link-list'?: T | LinkListBlockSelect<T>;
+        'document-list'?: T | DocumentListBlockSelect<T>;
+        media?: T | PageMediaBlockSelect<T>;
+        table?: T | TableBlockSelect<T>;
+        embed?: T | EmbedBlockSelect<T>;
+      };
+  reviewStatus?: T;
+  legacyPath?: T;
+  sourceUrl?: T;
+  sourceSnapshotFile?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "RichTextBlock_select".
+ */
+export interface RichTextBlockSelect<T extends boolean = true> {
+  body?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "CalloutBlock_select".
+ */
+export interface CalloutBlockSelect<T extends boolean = true> {
+  heading?: T;
+  body?: T;
+  tone?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "LinkListBlock_select".
+ */
+export interface LinkListBlockSelect<T extends boolean = true> {
+  heading?: T;
+  links?:
+    | T
+    | {
+        label?: T;
+        destinationType?: T;
+        page?: T;
+        internalPath?: T;
+        externalUrl?: T;
+        document?: T;
+        openInNewTab?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "DocumentListBlock_select".
+ */
+export interface DocumentListBlockSelect<T extends boolean = true> {
+  heading?: T;
+  documents?: T;
+  legacyDocuments?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "PageMediaBlock_select".
+ */
+export interface PageMediaBlockSelect<T extends boolean = true> {
+  image?: T;
+  legacyImageUrl?: T;
+  caption?: T;
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "TableBlock_select".
+ */
+export interface TableBlockSelect<T extends boolean = true> {
+  caption?: T;
+  columns?:
+    | T
+    | {
+        heading?: T;
+        id?: T;
+      };
+  rows?:
+    | T
+    | {
+        cells?:
+          | T
+          | {
+              value?: T;
+              id?: T;
+            };
+        id?: T;
+      };
+  id?: T;
+  blockName?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "EmbedBlock_select".
+ */
+export interface EmbedBlockSelect<T extends boolean = true> {
+  provider?: T;
+  url?: T;
+  title?: T;
+  id?: T;
+  blockName?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -1120,7 +1436,8 @@ export interface SiteSetting {
   utilityLinks?:
     | {
         label: string;
-        destinationType: 'internal-path' | 'external-url' | 'document';
+        destinationType: 'page' | 'internal-path' | 'external-url' | 'document';
+        page?: (number | null) | Page;
         /**
          * A site path beginning with /, such as /contact.
          */
@@ -1137,7 +1454,8 @@ export interface SiteSetting {
   primaryLinks?:
     | {
         label: string;
-        destinationType: 'internal-path' | 'external-url' | 'document';
+        destinationType: 'page' | 'internal-path' | 'external-url' | 'document';
+        page?: (number | null) | Page;
         /**
          * A site path beginning with /, such as /contact.
          */
@@ -1157,7 +1475,8 @@ export interface SiteSetting {
         links?:
           | {
               label: string;
-              destinationType: 'internal-path' | 'external-url' | 'document';
+              destinationType: 'page' | 'internal-path' | 'external-url' | 'document';
+              page?: (number | null) | Page;
               /**
                * A site path beginning with /, such as /contact.
                */
@@ -1177,7 +1496,8 @@ export interface SiteSetting {
   announcements?:
     | {
         message: string;
-        destinationType: 'none' | 'internal-path' | 'external-url' | 'document';
+        destinationType: 'none' | 'page' | 'internal-path' | 'external-url' | 'document';
+        page?: (number | null) | Page;
         /**
          * A site path beginning with /, such as /contact.
          */
@@ -1195,7 +1515,8 @@ export interface SiteSetting {
   footerLinks?:
     | {
         label: string;
-        destinationType: 'internal-path' | 'external-url' | 'document';
+        destinationType: 'page' | 'internal-path' | 'external-url' | 'document';
+        page?: (number | null) | Page;
         /**
          * A site path beginning with /, such as /contact.
          */
@@ -1231,7 +1552,8 @@ export interface Homepage {
          * Temporary source URL until the image is migrated into Media.
          */
         legacyImageUrl?: string | null;
-        destinationType: 'none' | 'internal-path' | 'external-url' | 'document';
+        destinationType: 'none' | 'page' | 'internal-path' | 'external-url' | 'document';
+        page?: (number | null) | Page;
         /**
          * A site path beginning with /, such as /contact.
          */
@@ -1310,6 +1632,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
     | {
         label?: T;
         destinationType?: T;
+        page?: T;
         internalPath?: T;
         externalUrl?: T;
         document?: T;
@@ -1321,6 +1644,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
     | {
         label?: T;
         destinationType?: T;
+        page?: T;
         internalPath?: T;
         externalUrl?: T;
         document?: T;
@@ -1336,6 +1660,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
           | {
               label?: T;
               destinationType?: T;
+              page?: T;
               internalPath?: T;
               externalUrl?: T;
               document?: T;
@@ -1349,6 +1674,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
     | {
         message?: T;
         destinationType?: T;
+        page?: T;
         internalPath?: T;
         externalUrl?: T;
         document?: T;
@@ -1361,6 +1687,7 @@ export interface SiteSettingsSelect<T extends boolean = true> {
     | {
         label?: T;
         destinationType?: T;
+        page?: T;
         internalPath?: T;
         externalUrl?: T;
         document?: T;
@@ -1388,6 +1715,7 @@ export interface HomepageSelect<T extends boolean = true> {
         image?: T;
         legacyImageUrl?: T;
         destinationType?: T;
+        page?: T;
         internalPath?: T;
         externalUrl?: T;
         document?: T;

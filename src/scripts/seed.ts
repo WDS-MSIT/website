@@ -8,6 +8,7 @@ import { seedFaculty } from '@/seed/faculty'
 import { seedCommittees } from '@/seed/committees'
 import { seedFacilities } from '@/seed/facilities'
 import { seedHomepage } from '@/seed/homepage'
+import { seedPages } from '@/seed/pages'
 import { seedSiteSettings } from '@/seed/site-settings'
 import { seedSocieties } from '@/seed/societies'
 import { seedUpdates } from '@/seed/updates'
@@ -76,6 +77,7 @@ const seed = async (): Promise<void> => {
     await seedFacilities(payload)
     await seedSocieties(payload)
     await seedUpdates(payload)
+    await seedPages(payload)
     await seedSiteSettings(payload)
     await seedHomepage(payload)
   } finally {

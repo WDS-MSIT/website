@@ -18,6 +18,7 @@ export const linkFields = ({
   includeLabel = true,
 }: LinkFieldOptions = {}): Field[] => {
   const destinationOptions = [
+    { label: 'Page', value: 'page' },
     { label: 'Internal path', value: 'internal-path' },
     { label: 'External URL', value: 'external-url' },
     { label: 'Document', value: 'document' },
@@ -44,6 +45,14 @@ export const linkFields = ({
       defaultValue: allowNone ? 'none' : 'internal-path',
       options: destinationOptions,
       required: true,
+    },
+    {
+      name: 'page',
+      type: 'relationship',
+      relationTo: 'pages',
+      admin: {
+        condition: (_data, siblingData) => hasDestinationType(siblingData, 'page'),
+      },
     },
     {
       name: 'internalPath',
