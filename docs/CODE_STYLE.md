@@ -45,6 +45,12 @@ Project-specific coding conventions that tools do not already enforce. If the fo
 - Add a new dependency only when the standard library or existing dependencies cannot reasonably cover the need.
 - <!-- TODO: document ownership and import direction between modules once the structure settles. -->
 
+## Git commits
+
+- Use Conventional Commits for commit subjects: `<type>(<optional scope>): <imperative summary>`.
+- Prefer the narrowest meaningful type, such as `feat`, `fix`, `docs`, `test`, `refactor`, `chore`, or `build`.
+- Keep each commit focused on one coherent change. Do not rewrite shared, pushed history only to rename older commits unless the team explicitly coordinates it.
+
 ## Testing
 
 - Test observable behavior and public contracts, not internal implementation details.
