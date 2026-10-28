@@ -74,6 +74,7 @@ export interface Config {
     documents: Document;
     committees: Committee;
     facilities: Facility;
+    societies: Society;
     updates: Update;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
@@ -89,6 +90,7 @@ export interface Config {
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
     committees: CommitteesSelect<false> | CommitteesSelect<true>;
     facilities: FacilitiesSelect<false> | FacilitiesSelect<true>;
+    societies: SocietiesSelect<false> | SocietiesSelect<true>;
     updates: UpdatesSelect<false> | UpdatesSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
@@ -426,6 +428,130 @@ export interface Facility {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "societies".
+ */
+export interface Society {
+  id: number;
+  name: string;
+  slug: string;
+  /**
+   * Assign this during review; the source page does not state categories.
+   */
+  category: 'unclassified' | 'academic' | 'cultural' | 'service' | 'technical' | 'other';
+  /**
+   * Short summary shown on listing cards. Imported summaries are verbatim excerpts.
+   */
+  overview?: string | null;
+  /**
+   * Full society profile from the source page.
+   */
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Use only when the source gives a full date.
+   */
+  foundedOn?: string | null;
+  /**
+   * Use only when the source gives a year but no full date.
+   */
+  foundedYear?: number | null;
+  facultyCoordinators?:
+    | {
+        name: string;
+        role?: string | null;
+        designation?: string | null;
+        department?: string | null;
+        email?: string | null;
+        faculty?: (number | null) | Faculty;
+        id?: string | null;
+      }[]
+    | null;
+  studentLeaders?:
+    | {
+        name: string;
+        role?: string | null;
+        /**
+         * Sub-society or department, when the source states one.
+         */
+        unit?: string | null;
+        department?: string | null;
+        email?: string | null;
+        phone?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  contact?: {
+    emails?:
+      | {
+          email: string;
+          id?: string | null;
+        }[]
+      | null;
+    phone?: string | null;
+  };
+  externalLinks?:
+    | {
+        label: string;
+        url: string;
+        type?: ('website' | 'social' | 'form' | 'other') | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Reviewed supporting documents for this society.
+   */
+  documents?: (number | Document)[] | null;
+  /**
+   * Temporary source links until these files are migrated into Documents.
+   */
+  legacyDocuments?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  logo?: (number | null) | Media;
+  gallery?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Temporary source images pending review and migration into Media.
+   */
+  legacyImages?:
+    | {
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  sortOrder: number;
+  sourceUrl?: string | null;
+  sourceSnapshotFile?: string | null;
+  legacyPath?: string | null;
+  reviewStatus: 'unreviewed' | 'needs-confirmation' | 'verified' | 'rejected';
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "updates".
  */
 export interface Update {
@@ -545,6 +671,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'facilities';
         value: number | Facility;
+      } | null)
+    | ({
+        relationTo: 'societies';
+        value: number | Society;
       } | null)
     | ({
         relationTo: 'updates';
@@ -794,6 +924,90 @@ export interface FacilitiesSelect<T extends boolean = true> {
   sourceUrl?: T;
   sourceSnapshotFile?: T;
   legacyPath?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "societies_select".
+ */
+export interface SocietiesSelect<T extends boolean = true> {
+  name?: T;
+  slug?: T;
+  category?: T;
+  overview?: T;
+  description?: T;
+  foundedOn?: T;
+  foundedYear?: T;
+  facultyCoordinators?:
+    | T
+    | {
+        name?: T;
+        role?: T;
+        designation?: T;
+        department?: T;
+        email?: T;
+        faculty?: T;
+        id?: T;
+      };
+  studentLeaders?:
+    | T
+    | {
+        name?: T;
+        role?: T;
+        unit?: T;
+        department?: T;
+        email?: T;
+        phone?: T;
+        id?: T;
+      };
+  contact?:
+    | T
+    | {
+        emails?:
+          | T
+          | {
+              email?: T;
+              id?: T;
+            };
+        phone?: T;
+      };
+  externalLinks?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        type?: T;
+        id?: T;
+      };
+  documents?: T;
+  legacyDocuments?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  logo?: T;
+  gallery?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
+  legacyImages?:
+    | T
+    | {
+        url?: T;
+        id?: T;
+      };
+  sortOrder?: T;
+  sourceUrl?: T;
+  sourceSnapshotFile?: T;
+  legacyPath?: T;
+  reviewStatus?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;

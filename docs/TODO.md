@@ -33,6 +33,14 @@ Keep work here only when the project has chosen to postpone it. Remove an item w
 - Migrate seeded `legacyAttachments` from `msit.in` into reviewed Documents before retiring the old file host.
 - Download, validate, deduplicate, and review legacy files when S3/R2 migration work begins.
 
+## Society content
+
+- Assign society categories during editorial review; the legacy page does not provide categories.
+- Confirm that student names and contact details are still current and approved for public display.
+- Resolve faculty coordinator names that do not match exactly to Faculty records.
+- Migrate `legacyDocuments` and `legacyImages` into reviewed Documents and Media records.
+- Add related Events and activities after the Events domain exists.
+
 ## Infrastructure
 
 - Select the production hosting platform and managed PostgreSQL provider.

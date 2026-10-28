@@ -11,6 +11,7 @@ import { Committees } from './collections/Committees'
 import { Documents } from './collections/Documents'
 import { Faculty } from './collections/Faculty'
 import { Facilities } from './collections/Facilities'
+import { Societies } from './collections/Societies'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Updates } from './collections/Updates'
@@ -47,7 +48,17 @@ export default buildConfig({
       baseDir: path.resolve(dirname),
     },
   },
-  collections: [Users, Departments, Faculty, Media, Documents, Committees, Facilities, Updates],
+  collections: [
+    Users,
+    Departments,
+    Faculty,
+    Media,
+    Documents,
+    Committees,
+    Facilities,
+    Societies,
+    Updates,
+  ],
   globals: [SiteSettings, Homepage],
   editor: lexicalEditor(),
   graphQL: {

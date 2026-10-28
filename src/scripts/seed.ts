@@ -9,6 +9,7 @@ import { seedCommittees } from '@/seed/committees'
 import { seedFacilities } from '@/seed/facilities'
 import { seedHomepage } from '@/seed/homepage'
 import { seedSiteSettings } from '@/seed/site-settings'
+import { seedSocieties } from '@/seed/societies'
 import { seedUpdates } from '@/seed/updates'
 
 const requiredEnv = (name: string): string => {
@@ -73,12 +74,16 @@ const seed = async (): Promise<void> => {
     await seedFaculty(payload)
     await seedCommittees(payload)
     await seedFacilities(payload)
+    await seedSocieties(payload)
     await seedUpdates(payload)
     await seedSiteSettings(payload)
     await seedHomepage(payload)
   } finally {
     await payload.destroy()
   }
+
+  // Payload's logger keeps a worker handle open after destroy, so end the script explicitly.
+  process.exit(0)
 }
 
 await seed()

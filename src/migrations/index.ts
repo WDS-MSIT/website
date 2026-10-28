@@ -5,6 +5,7 @@ import * as migration_20261026_183724_committees from './20261026_183724_committ
 import * as migration_20261026_191949_facilities from './20261026_191949_facilities';
 import * as migration_20261027_180742_updates_documents from './20261027_180742_updates_documents';
 import * as migration_20261027_195931_homepage_site_settings from './20261027_195931_homepage_site_settings';
+import * as migration_20261027_201021_societies from './20261027_201021_societies';
 
 export const migrations = [
   {
@@ -40,6 +41,11 @@ export const migrations = [
   {
     up: migration_20261027_195931_homepage_site_settings.up,
     down: migration_20261027_195931_homepage_site_settings.down,
-    name: '20261027_195931_homepage_site_settings'
+    name: '20261027_195931_homepage_site_settings',
+  },
+  {
+    up: migration_20261027_201021_societies.up,
+    down: migration_20261027_201021_societies.down,
+    name: '20261027_201021_societies'
   },
 ];
