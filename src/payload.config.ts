@@ -47,6 +47,25 @@ export default buildConfig({
     importMap: {
       baseDir: path.resolve(dirname),
     },
+    meta: {
+      description: 'MSIT website content management',
+      icons: [
+        {
+          rel: 'icon',
+          type: 'image/png',
+          url: '/msit-icon.png',
+        },
+      ],
+      title: 'MSIT Content Management',
+      titleSuffix: '— MSIT CMS',
+    },
+    components: {
+      beforeLogin: ['/components/admin/LoginIntroduction'],
+      graphics: {
+        Icon: '/components/admin/MSITIcon',
+        Logo: '/components/admin/MSITLogo',
+      },
+    },
   },
   collections: [
     Users,
