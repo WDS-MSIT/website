@@ -73,6 +73,7 @@ export interface Config {
     faculty: Faculty;
     media: Media;
     documents: Document;
+    events: Event;
     committees: Committee;
     facilities: Facility;
     societies: Society;
@@ -90,6 +91,7 @@ export interface Config {
     faculty: FacultySelect<false> | FacultySelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
+    events: EventsSelect<false> | EventsSelect<true>;
     committees: CommitteesSelect<false> | CommitteesSelect<true>;
     facilities: FacilitiesSelect<false> | FacilitiesSelect<true>;
     societies: SocietiesSelect<false> | SocietiesSelect<true>;
@@ -468,6 +470,234 @@ export interface Faculty {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events".
+ */
+export interface Event {
+  id: number;
+  title: string;
+  slug: string;
+  /**
+   * Short event description for listings.
+   */
+  summary?: string | null;
+  /**
+   * Optional full event description or retrospective report.
+   */
+  body?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  eventStatus: 'scheduled' | 'completed' | 'postponed' | 'cancelled';
+  /**
+   * Leave blank when the legacy source does not provide a complete, trustworthy date.
+   */
+  startsAt?: string | null;
+  /**
+   * Use for multi-day events or events with a known end time.
+   */
+  endsAt?: string | null;
+  /**
+   * Turn off only when exact event times are known.
+   */
+  allDay?: boolean | null;
+  deliveryMode: 'unspecified' | 'in-person' | 'online' | 'hybrid';
+  /**
+   * Physical venue or online platform stated by the source.
+   */
+  venue?: string | null;
+  departments?: (number | Department)[] | null;
+  societies?: (number | Society)[] | null;
+  /**
+   * Named cells, placement teams, partner organisations, or other organisers without their own collection.
+   */
+  organisers?:
+    | {
+        name: string;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Optional registration or official external event page.
+   */
+  registrationUrl?: string | null;
+  /**
+   * Reviewed event reports and supporting documents.
+   */
+  reports?: (number | Document)[] | null;
+  /**
+   * Temporary source links until legacy event reports are migrated into Documents.
+   */
+  legacyReports?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  gallery?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Temporary source images pending review and migration into Media.
+   */
+  legacyImages?:
+    | {
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  reviewStatus: 'unreviewed' | 'needs-confirmation' | 'verified' | 'rejected';
+  sourceUrl?: string | null;
+  sourceSnapshotFile?: string | null;
+  /**
+   * Original position in the legacy event list.
+   */
+  sourceOrder?: number | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "societies".
+ */
+export interface Society {
+  id: number;
+  name: string;
+  slug: string;
+  /**
+   * Assign this during review; the source page does not state categories.
+   */
+  category: 'unclassified' | 'academic' | 'cultural' | 'service' | 'technical' | 'other';
+  /**
+   * Short summary shown on listing cards. Imported summaries are verbatim excerpts.
+   */
+  overview?: string | null;
+  /**
+   * Full society profile from the source page.
+   */
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Use only when the source gives a full date.
+   */
+  foundedOn?: string | null;
+  /**
+   * Use only when the source gives a year but no full date.
+   */
+  foundedYear?: number | null;
+  facultyCoordinators?:
+    | {
+        name: string;
+        role?: string | null;
+        designation?: string | null;
+        department?: string | null;
+        email?: string | null;
+        faculty?: (number | null) | Faculty;
+        id?: string | null;
+      }[]
+    | null;
+  studentLeaders?:
+    | {
+        name: string;
+        role?: string | null;
+        /**
+         * Sub-society or department, when the source states one.
+         */
+        unit?: string | null;
+        department?: string | null;
+        email?: string | null;
+        phone?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  contact?: {
+    emails?:
+      | {
+          email: string;
+          id?: string | null;
+        }[]
+      | null;
+    phone?: string | null;
+  };
+  externalLinks?:
+    | {
+        label: string;
+        url: string;
+        type?: ('website' | 'social' | 'form' | 'other') | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Reviewed supporting documents for this society.
+   */
+  documents?: (number | Document)[] | null;
+  /**
+   * Temporary source links until these files are migrated into Documents.
+   */
+  legacyDocuments?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  logo?: (number | null) | Media;
+  gallery?:
+    | {
+        image: number | Media;
+        caption?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Temporary source images pending review and migration into Media.
+   */
+  legacyImages?:
+    | {
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  sortOrder: number;
+  sourceUrl?: string | null;
+  sourceSnapshotFile?: string | null;
+  legacyPath?: string | null;
+  reviewStatus: 'unreviewed' | 'needs-confirmation' | 'verified' | 'rejected';
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "committees".
  */
 export interface Committee {
@@ -607,130 +837,6 @@ export interface Facility {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "societies".
- */
-export interface Society {
-  id: number;
-  name: string;
-  slug: string;
-  /**
-   * Assign this during review; the source page does not state categories.
-   */
-  category: 'unclassified' | 'academic' | 'cultural' | 'service' | 'technical' | 'other';
-  /**
-   * Short summary shown on listing cards. Imported summaries are verbatim excerpts.
-   */
-  overview?: string | null;
-  /**
-   * Full society profile from the source page.
-   */
-  description?: {
-    root: {
-      type: string;
-      children: {
-        type: any;
-        version: number;
-        [k: string]: unknown;
-      }[];
-      direction: ('ltr' | 'rtl') | null;
-      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
-      indent: number;
-      version: number;
-    };
-    [k: string]: unknown;
-  } | null;
-  /**
-   * Use only when the source gives a full date.
-   */
-  foundedOn?: string | null;
-  /**
-   * Use only when the source gives a year but no full date.
-   */
-  foundedYear?: number | null;
-  facultyCoordinators?:
-    | {
-        name: string;
-        role?: string | null;
-        designation?: string | null;
-        department?: string | null;
-        email?: string | null;
-        faculty?: (number | null) | Faculty;
-        id?: string | null;
-      }[]
-    | null;
-  studentLeaders?:
-    | {
-        name: string;
-        role?: string | null;
-        /**
-         * Sub-society or department, when the source states one.
-         */
-        unit?: string | null;
-        department?: string | null;
-        email?: string | null;
-        phone?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  contact?: {
-    emails?:
-      | {
-          email: string;
-          id?: string | null;
-        }[]
-      | null;
-    phone?: string | null;
-  };
-  externalLinks?:
-    | {
-        label: string;
-        url: string;
-        type?: ('website' | 'social' | 'form' | 'other') | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Reviewed supporting documents for this society.
-   */
-  documents?: (number | Document)[] | null;
-  /**
-   * Temporary source links until these files are migrated into Documents.
-   */
-  legacyDocuments?:
-    | {
-        label: string;
-        url: string;
-        id?: string | null;
-      }[]
-    | null;
-  logo?: (number | null) | Media;
-  gallery?:
-    | {
-        image: number | Media;
-        caption?: string | null;
-        id?: string | null;
-      }[]
-    | null;
-  /**
-   * Temporary source images pending review and migration into Media.
-   */
-  legacyImages?:
-    | {
-        url: string;
-        id?: string | null;
-      }[]
-    | null;
-  sortOrder: number;
-  sourceUrl?: string | null;
-  sourceSnapshotFile?: string | null;
-  legacyPath?: string | null;
-  reviewStatus: 'unreviewed' | 'needs-confirmation' | 'verified' | 'rejected';
-  updatedAt: string;
-  createdAt: string;
-  _status?: ('draft' | 'published') | null;
-}
-/**
- * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "updates".
  */
 export interface Update {
@@ -846,6 +952,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'documents';
         value: number | Document;
+      } | null)
+    | ({
+        relationTo: 'events';
+        value: number | Event;
       } | null)
     | ({
         relationTo: 'committees';
@@ -1153,6 +1263,59 @@ export interface DocumentsSelect<T extends boolean = true> {
   height?: T;
   focalX?: T;
   focalY?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "events_select".
+ */
+export interface EventsSelect<T extends boolean = true> {
+  title?: T;
+  slug?: T;
+  summary?: T;
+  body?: T;
+  eventStatus?: T;
+  startsAt?: T;
+  endsAt?: T;
+  allDay?: T;
+  deliveryMode?: T;
+  venue?: T;
+  departments?: T;
+  societies?: T;
+  organisers?:
+    | T
+    | {
+        name?: T;
+        id?: T;
+      };
+  registrationUrl?: T;
+  reports?: T;
+  legacyReports?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  gallery?:
+    | T
+    | {
+        image?: T;
+        caption?: T;
+        id?: T;
+      };
+  legacyImages?:
+    | T
+    | {
+        url?: T;
+        id?: T;
+      };
+  reviewStatus?: T;
+  sourceUrl?: T;
+  sourceSnapshotFile?: T;
+  sourceOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

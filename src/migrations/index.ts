@@ -6,6 +6,8 @@ import * as migration_20261026_191949_facilities from './20261026_191949_facilit
 import * as migration_20261027_180742_updates_documents from './20261027_180742_updates_documents';
 import * as migration_20261027_195931_homepage_site_settings from './20261027_195931_homepage_site_settings';
 import * as migration_20261027_201021_societies from './20261027_201021_societies';
+import * as migration_20261028_175728_pages from './20261028_175728_pages';
+import * as migration_20261029_095355_events from './20261029_095355_events';
 
 export const migrations = [
   {
@@ -46,6 +48,16 @@ export const migrations = [
   {
     up: migration_20261027_201021_societies.up,
     down: migration_20261027_201021_societies.down,
-    name: '20261027_201021_societies'
+    name: '20261027_201021_societies',
+  },
+  {
+    up: migration_20261028_175728_pages.up,
+    down: migration_20261028_175728_pages.down,
+    name: '20261028_175728_pages',
+  },
+  {
+    up: migration_20261029_095355_events.up,
+    down: migration_20261029_095355_events.down,
+    name: '20261029_095355_events'
   },
 ];

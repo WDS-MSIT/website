@@ -9,6 +9,7 @@ import sharp from 'sharp'
 import { Departments } from './collections/Departments'
 import { Committees } from './collections/Committees'
 import { Documents } from './collections/Documents'
+import { Events } from './collections/Events'
 import { Faculty } from './collections/Faculty'
 import { Facilities } from './collections/Facilities'
 import { Societies } from './collections/Societies'
@@ -75,6 +76,7 @@ export default buildConfig({
     Faculty,
     Media,
     Documents,
+    Events,
     Committees,
     Facilities,
     Societies,
