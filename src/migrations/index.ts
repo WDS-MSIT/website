@@ -8,6 +8,7 @@ import * as migration_20261027_195931_homepage_site_settings from './20261027_19
 import * as migration_20261027_201021_societies from './20261027_201021_societies';
 import * as migration_20261028_175728_pages from './20261028_175728_pages';
 import * as migration_20261029_095355_events from './20261029_095355_events';
+import * as migration_20261029_102203_programmes from './20261029_102203_programmes';
 
 export const migrations = [
   {
@@ -58,6 +59,11 @@ export const migrations = [
   {
     up: migration_20261029_095355_events.up,
     down: migration_20261029_095355_events.down,
-    name: '20261029_095355_events'
+    name: '20261029_095355_events',
+  },
+  {
+    up: migration_20261029_102203_programmes.up,
+    down: migration_20261029_102203_programmes.down,
+    name: '20261029_102203_programmes'
   },
 ];

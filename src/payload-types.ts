@@ -70,6 +70,7 @@ export interface Config {
     users: User;
     pages: Page;
     departments: Department;
+    programmes: Programme;
     faculty: Faculty;
     media: Media;
     documents: Document;
@@ -88,6 +89,7 @@ export interface Config {
     users: UsersSelect<false> | UsersSelect<true>;
     pages: PagesSelect<false> | PagesSelect<true>;
     departments: DepartmentsSelect<false> | DepartmentsSelect<true>;
+    programmes: ProgrammesSelect<false> | ProgrammesSelect<true>;
     faculty: FacultySelect<false> | FacultySelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
@@ -429,6 +431,134 @@ export interface EmbedBlock {
   id?: string | null;
   blockName?: string | null;
   blockType: 'embed';
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "programmes".
+ */
+export interface Programme {
+  id: number;
+  name: string;
+  shortName?: string | null;
+  code: string;
+  slug: string;
+  degree: string;
+  level: 'undergraduate' | 'postgraduate' | 'doctoral';
+  department: number | Department;
+  /**
+   * Leave blank until the programme duration is confirmed by a source.
+   */
+  durationYears?: number | null;
+  description?: {
+    root: {
+      type: string;
+      children: {
+        type: any;
+        version: number;
+        [k: string]: unknown;
+      }[];
+      direction: ('ltr' | 'rtl') | null;
+      format: 'left' | 'start' | 'center' | 'right' | 'end' | 'justify' | '';
+      indent: number;
+      version: number;
+    };
+    [k: string]: unknown;
+  } | null;
+  /**
+   * Keep historical intake claims as separate rows instead of overwriting them.
+   */
+  intakes?:
+    | {
+        /**
+         * Leave blank when the source does not identify an academic year.
+         */
+        academicYear?: string | null;
+        shift: 'unspecified' | 'first' | 'second' | 'combined';
+        seats: number;
+        sourceNote?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  educationalObjectives?:
+    | {
+        code: string;
+        statement: string;
+        id?: string | null;
+      }[]
+    | null;
+  programmeOutcomes?:
+    | {
+        code: string;
+        title?: string | null;
+        statement: string;
+        id?: string | null;
+      }[]
+    | null;
+  programmeSpecificOutcomes?:
+    | {
+        code: string;
+        statement: string;
+        id?: string | null;
+      }[]
+    | null;
+  documents?: (number | Document)[] | null;
+  /**
+   * Temporary source links until programme files and folders are reviewed and migrated.
+   */
+  legacyResources?:
+    | {
+        label: string;
+        url: string;
+        type:
+          | 'programme-outcomes'
+          | 'scheme'
+          | 'syllabus'
+          | 'lesson-plan'
+          | 'outcome-mapping'
+          | 'assignments'
+          | 'notes'
+          | 'question-papers'
+          | 'question-bank'
+          | 'other';
+        id?: string | null;
+      }[]
+    | null;
+  /**
+   * Record validity and evidence before changing a source claim into a verified accreditation.
+   */
+  accreditations?:
+    | {
+        accreditingBody: string;
+        accreditationStatus: 'claimed' | 'accredited' | 'expired' | 'not-accredited';
+        validFrom?: string | null;
+        validUntil?: string | null;
+        evidence?: (number | Document)[] | null;
+        legacyEvidence?:
+          | {
+              label: string;
+              url: string;
+              id?: string | null;
+            }[]
+          | null;
+        note?: string | null;
+        id?: string | null;
+      }[]
+    | null;
+  reviewStatus: 'unreviewed' | 'needs-confirmation' | 'verified' | 'rejected';
+  legacyPath?: string | null;
+  sourceUrl?: string | null;
+  sourceSnapshotFile?: string | null;
+  sourceReferences?:
+    | {
+        label: string;
+        url: string;
+        snapshotFile: string;
+        id?: string | null;
+      }[]
+    | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
@@ -942,6 +1072,10 @@ export interface PayloadLockedDocument {
         value: number | Department;
       } | null)
     | ({
+        relationTo: 'programmes';
+        value: number | Programme;
+      } | null)
+    | ({
         relationTo: 'faculty';
         value: number | Faculty;
       } | null)
@@ -1192,6 +1326,94 @@ export interface DepartmentsSelect<T extends boolean = true> {
       };
   legacyPath?: T;
   sortOrder?: T;
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "programmes_select".
+ */
+export interface ProgrammesSelect<T extends boolean = true> {
+  name?: T;
+  shortName?: T;
+  code?: T;
+  slug?: T;
+  degree?: T;
+  level?: T;
+  department?: T;
+  durationYears?: T;
+  description?: T;
+  intakes?:
+    | T
+    | {
+        academicYear?: T;
+        shift?: T;
+        seats?: T;
+        sourceNote?: T;
+        id?: T;
+      };
+  educationalObjectives?:
+    | T
+    | {
+        code?: T;
+        statement?: T;
+        id?: T;
+      };
+  programmeOutcomes?:
+    | T
+    | {
+        code?: T;
+        title?: T;
+        statement?: T;
+        id?: T;
+      };
+  programmeSpecificOutcomes?:
+    | T
+    | {
+        code?: T;
+        statement?: T;
+        id?: T;
+      };
+  documents?: T;
+  legacyResources?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        type?: T;
+        id?: T;
+      };
+  accreditations?:
+    | T
+    | {
+        accreditingBody?: T;
+        accreditationStatus?: T;
+        validFrom?: T;
+        validUntil?: T;
+        evidence?: T;
+        legacyEvidence?:
+          | T
+          | {
+              label?: T;
+              url?: T;
+              id?: T;
+            };
+        note?: T;
+        id?: T;
+      };
+  reviewStatus?: T;
+  legacyPath?: T;
+  sourceUrl?: T;
+  sourceSnapshotFile?: T;
+  sourceReferences?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        snapshotFile?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
