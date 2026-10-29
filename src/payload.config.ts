@@ -10,7 +10,7 @@ import { Departments } from './collections/Departments'
 import { Committees } from './collections/Committees'
 import { Documents } from './collections/Documents'
 import { Events } from './collections/Events'
-import { Faculty } from './collections/Faculty'
+import { People } from './collections/People'
 import { Facilities } from './collections/Facilities'
 import { Societies } from './collections/Societies'
 import { Users } from './collections/Users'
@@ -77,7 +77,7 @@ export default buildConfig({
     Departments,
     Programmes,
     PlacementYears,
-    Faculty,
+    People,
     Media,
     Documents,
     Events,

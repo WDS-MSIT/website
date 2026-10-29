@@ -53,6 +53,26 @@ const slugify = (value: string): string =>
     .replace(/[^a-z0-9]+/g, '-')
     .replace(/^-|-$/g, '')
 
+const normalizePersonName = (value: string): string =>
+  {
+    const normalized = normalizeText(value)
+    .replace(/,\s*(CSE|IT|ECE|EEE|App\.?\s*Sc\.?)$/i, '')
+    .replace(/^(?:Prof\.?\s*\(Dr\.?\)|Prof\.?\s*Dr\.?|Prof\.?|Dr\.?|Mr\.?|Mrs\.?|Ms\.?|Smt\.?|Sh\.?)\s+/i, '')
+    .normalize('NFKD')
+    .replace(/[\u0300-\u036f]/g, '')
+    .toLowerCase()
+    .replace(/[^a-z0-9]+/g, ' ')
+    .trim()
+
+    const aliases: Record<string, string> = {
+      'anju dhillon': 'anju singh dhillon',
+      'jasmin chikara': 'jasmine chikara',
+      'jasmine chhikara': 'jasmine chikara',
+      'rajbir singh rathee': 'r s rathee',
+    }
+    return aliases[normalized] || normalized
+  }
+
 const decodeCloudflareEmail = (encoded: string): string | undefined => {
   if (!/^[0-9a-f]+$/i.test(encoded) || encoded.length < 4 || encoded.length % 2 !== 0) {
     return undefined
@@ -329,7 +349,24 @@ const readCommitteeSeeds = async (): Promise<CommitteeSeed[]> => {
 }
 
 export const seedCommittees = async (payload: Payload): Promise<void> => {
-  const seeds = await readCommitteeSeeds()
+  const [seeds, peopleResult] = await Promise.all([
+    readCommitteeSeeds(),
+    payload.find({
+      collection: 'people',
+      draft: true,
+      limit: 0,
+      overrideAccess: true,
+      pagination: false,
+    }),
+  ])
+  const people = new Map<string, { id: number; student: boolean }[]>()
+
+  for (const person of peopleResult.docs) {
+    const key = normalizePersonName(person.name)
+    const matches = people.get(key) || []
+    matches.push({ id: person.id, student: person.personTypes.includes('student') })
+    people.set(key, matches)
+  }
   let created = 0
   let skipped = 0
 
@@ -347,9 +384,17 @@ export const seedCommittees = async (payload: Payload): Promise<void> => {
       continue
     }
 
+    const members = committee.members.map((member) => {
+      const matches = people.get(normalizePersonName(member.name)) || []
+      const expectsStudent = /student/i.test(member.designation || '')
+      const matchingType = matches.filter((person) => person.student === expectsStudent)
+      const match = matchingType.length === 1 ? matchingType[0] : undefined
+      return match ? { ...member, person: match.id } : member
+    })
+
     await payload.create({
       collection: 'committees',
-      data: { ...committee, _status: 'draft' },
+      data: { ...committee, members, _status: 'draft' },
       draft: true,
       overrideAccess: true,
     })

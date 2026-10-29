@@ -102,9 +102,9 @@ export const Societies: CollectionConfig = {
           type: 'email',
         },
         {
-          name: 'faculty',
+          name: 'person',
           type: 'relationship',
-          relationTo: 'faculty',
+          relationTo: 'people',
         },
       ],
     },
@@ -112,6 +112,11 @@ export const Societies: CollectionConfig = {
       name: 'studentLeaders',
       type: 'array',
       fields: [
+        {
+          name: 'person',
+          type: 'relationship',
+          relationTo: 'people',
+        },
         {
           name: 'name',
           type: 'text',

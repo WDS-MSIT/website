@@ -1175,26 +1175,39 @@ export const readSocietySeeds = async (): Promise<SocietyParseResult> => {
   return parseSocietySeeds(html)
 }
 
-const findFacultyIds = async (payload: Payload): Promise<Map<string, number[]>> => {
+const findPersonIds = async (
+  payload: Payload,
+): Promise<{ faculty: Map<string, number[]>; students: Map<string, number[]> }> => {
   const result = await payload.find({
-    collection: 'faculty',
+    collection: 'people',
     draft: true,
     limit: 0,
     overrideAccess: true,
     pagination: false,
   })
-  const ids = new Map<string, number[]>()
+  const faculty = new Map<string, number[]>()
+  const students = new Map<string, number[]>()
 
   for (const doc of result.docs) {
     const key = normalizePersonName(doc.name)
     if (!key) continue
 
-    const matches = ids.get(key) || []
-    matches.push(doc.id)
-    ids.set(key, matches)
+    if (
+      doc.personTypes.includes('faculty') ||
+      (doc.personTypes.includes('society-member') && !doc.personTypes.includes('student'))
+    ) {
+      const matches = faculty.get(key) || []
+      matches.push(doc.id)
+      faculty.set(key, matches)
+    }
+    if (doc.personTypes.includes('student')) {
+      const matches = students.get(key) || []
+      matches.push(doc.id)
+      students.set(key, matches)
+    }
   }
 
-  return ids
+  return { faculty, students }
 }
 
 export const seedSocieties = async (payload: Payload): Promise<void> => {
@@ -1208,7 +1221,7 @@ export const seedSocieties = async (payload: Payload): Promise<void> => {
     throw new Error('No society records could be parsed from society.html')
   }
 
-  const facultyIds = await findFacultyIds(payload)
+  const personIds = await findPersonIds(payload)
   const unresolved = new Set<string>()
   let created = 0
   let skipped = 0
@@ -1230,10 +1243,10 @@ export const seedSocieties = async (payload: Payload): Promise<void> => {
 
     try {
       const facultyCoordinators = seed.facultyCoordinators.map((person) => {
-        const matches = facultyIds.get(normalizePersonName(person.name)) || []
+        const matches = personIds.faculty.get(normalizePersonName(person.name)) || []
 
         if (matches.length === 1) {
-          return { ...person, faculty: matches[0] }
+          return { ...person, person: matches[0] }
         }
 
         if (matches.length > 1) {
@@ -1242,6 +1255,14 @@ export const seedSocieties = async (payload: Payload): Promise<void> => {
           unresolved.add(person.name)
         }
 
+        return person
+      })
+      const studentLeaders = seed.studentLeaders.map((person) => {
+        const matches = personIds.students.get(normalizePersonName(person.name)) || []
+
+        if (matches.length === 1) return { ...person, person: matches[0] }
+        if (matches.length > 1) unresolved.add(`${person.name} (multiple student matches)`)
+        else unresolved.add(person.name)
         return person
       })
 
@@ -1268,7 +1289,7 @@ export const seedSocieties = async (payload: Payload): Promise<void> => {
           sortOrder: seed.sortOrder,
           sourceSnapshotFile: seed.sourceSnapshotFile,
           sourceUrl: seed.sourceUrl,
-          studentLeaders: seed.studentLeaders,
+          studentLeaders,
         },
         draft: true,
         overrideAccess: true,
@@ -1288,7 +1309,7 @@ export const seedSocieties = async (payload: Payload): Promise<void> => {
 
   if (unresolved.size) {
     payload.logger.warn(
-      `Faculty relationships left unset for: ${[...unresolved].sort().join(', ')}`,
+      `People relationships left unset for: ${[...unresolved].sort().join(', ')}`,
     )
   }
 

@@ -34,6 +34,11 @@ export const Committees: CollectionConfig = {
       type: 'array',
       fields: [
         {
+          name: 'person',
+          type: 'relationship',
+          relationTo: 'people',
+        },
+        {
           name: 'name',
           type: 'text',
           label: 'Name or office',

@@ -72,7 +72,7 @@ export interface Config {
     departments: Department;
     programmes: Programme;
     'placement-years': PlacementYear;
-    faculty: Faculty;
+    people: Person;
     media: Media;
     documents: Document;
     events: Event;
@@ -92,7 +92,7 @@ export interface Config {
     departments: DepartmentsSelect<false> | DepartmentsSelect<true>;
     programmes: ProgrammesSelect<false> | ProgrammesSelect<true>;
     'placement-years': PlacementYearsSelect<false> | PlacementYearsSelect<true>;
-    faculty: FacultySelect<false> | FacultySelect<true>;
+    people: PeopleSelect<false> | PeopleSelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
     events: EventsSelect<false> | EventsSelect<true>;
@@ -295,6 +295,7 @@ export interface Document {
   legacyUrl?: string | null;
   sourceUrl?: string | null;
   sourceSnapshotFile?: string | null;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -383,6 +384,7 @@ export interface PageMediaBlock {
 export interface Media {
   id: number;
   alt: string;
+  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -628,17 +630,67 @@ export interface PlacementYear {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "faculty".
+ * via the `definition` "people".
  */
-export interface Faculty {
+export interface Person {
   id: number;
   name: string;
   slug: string;
-  department: number | Department;
+  personTypes: (
+    | 'faculty'
+    | 'leadership'
+    | 'administration'
+    | 'technical-staff'
+    | 'library-staff'
+    | 'placement-staff'
+    | 'governance'
+    | 'committee-member'
+    | 'society-member'
+    | 'student'
+    | 'external'
+  )[];
   /**
-   * Academic rank, such as Professor or Associate Professor.
+   * The main public designation used on profile and listing cards.
    */
-  designation: string;
+  primaryDesignation?: string | null;
+  /**
+   * Optional because leadership, staff, students and external members may not belong to a department.
+   */
+  departments?: (number | Department)[] | null;
+  /**
+   * Default order when this person appears in a general people listing.
+   */
+  sortOrder?: number | null;
+  /**
+   * A person may hold several roles across departments, committees, societies or institute leadership.
+   */
+  roles?:
+    | {
+        type:
+          | 'faculty'
+          | 'leadership'
+          | 'administration'
+          | 'technical-staff'
+          | 'library-staff'
+          | 'placement-staff'
+          | 'governance'
+          | 'committee-member'
+          | 'society-member'
+          | 'student'
+          | 'external';
+        /**
+         * Examples: Associate Professor, Director, Convener or Student Coordinator.
+         */
+        title?: string | null;
+        /**
+         * The committee, society, office, organisation or other context for this role.
+         */
+        context?: string | null;
+        department?: (number | null) | Department;
+        sourceUrl?: string | null;
+        id?: string | null;
+      }[]
+    | null;
   qualifications?:
     | {
         qualification: string;
@@ -646,20 +698,34 @@ export interface Faculty {
       }[]
     | null;
   email?: string | null;
+  phone?: string | null;
   biography?: string | null;
   photo?: (number | null) | Media;
   /**
-   * A reviewed CV or detailed-profile document from the Media collection.
+   * Temporary source image until it is reviewed and migrated into Media.
    */
-  detailedProfile?: (number | null) | Media;
+  legacyPhotoUrl?: string | null;
   /**
-   * The identifier from the national VIDWAN expert database.
+   * Reviewed CV or detailed profile document.
+   */
+  detailedProfile?: (number | null) | Document;
+  /**
+   * Temporary source document until it is reviewed and migrated into Documents.
+   */
+  legacyProfileUrl?: string | null;
+  /**
+   * Identifier from the national VIDWAN expert database.
    */
   vidwanId?: string | null;
-  /**
-   * Order within the faculty member’s department.
-   */
-  sortOrder: number;
+  reviewStatus: 'unreviewed' | 'needs-confirmation' | 'verified' | 'rejected';
+  sourceReferences?:
+    | {
+        label: string;
+        url: string;
+        snapshotFile: string;
+        id?: string | null;
+      }[]
+    | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -817,12 +883,13 @@ export interface Society {
         designation?: string | null;
         department?: string | null;
         email?: string | null;
-        faculty?: (number | null) | Faculty;
+        person?: (number | null) | Person;
         id?: string | null;
       }[]
     | null;
   studentLeaders?:
     | {
+        person?: (number | null) | Person;
         name: string;
         role?: string | null;
         /**
@@ -902,6 +969,7 @@ export interface Committee {
   slug: string;
   members?:
     | {
+        person?: (number | null) | Person;
         name: string;
         designation?: string | null;
         committeeRole?: string | null;
@@ -1146,8 +1214,8 @@ export interface PayloadLockedDocument {
         value: number | PlacementYear;
       } | null)
     | ({
-        relationTo: 'faculty';
-        value: number | Faculty;
+        relationTo: 'people';
+        value: number | Person;
       } | null)
     | ({
         relationTo: 'media';
@@ -1520,13 +1588,25 @@ export interface PlacementYearsSelect<T extends boolean = true> {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
- * via the `definition` "faculty_select".
+ * via the `definition` "people_select".
  */
-export interface FacultySelect<T extends boolean = true> {
+export interface PeopleSelect<T extends boolean = true> {
   name?: T;
   slug?: T;
-  department?: T;
-  designation?: T;
+  personTypes?: T;
+  primaryDesignation?: T;
+  departments?: T;
+  sortOrder?: T;
+  roles?:
+    | T
+    | {
+        type?: T;
+        title?: T;
+        context?: T;
+        department?: T;
+        sourceUrl?: T;
+        id?: T;
+      };
   qualifications?:
     | T
     | {
@@ -1534,11 +1614,22 @@ export interface FacultySelect<T extends boolean = true> {
         id?: T;
       };
   email?: T;
+  phone?: T;
   biography?: T;
   photo?: T;
+  legacyPhotoUrl?: T;
   detailedProfile?: T;
+  legacyProfileUrl?: T;
   vidwanId?: T;
-  sortOrder?: T;
+  reviewStatus?: T;
+  sourceReferences?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        snapshotFile?: T;
+        id?: T;
+      };
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1549,6 +1640,7 @@ export interface FacultySelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1573,6 +1665,7 @@ export interface DocumentsSelect<T extends boolean = true> {
   legacyUrl?: T;
   sourceUrl?: T;
   sourceSnapshotFile?: T;
+  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1649,6 +1742,7 @@ export interface CommitteesSelect<T extends boolean = true> {
   members?:
     | T
     | {
+        person?: T;
         name?: T;
         designation?: T;
         committeeRole?: T;
@@ -1749,12 +1843,13 @@ export interface SocietiesSelect<T extends boolean = true> {
         designation?: T;
         department?: T;
         email?: T;
-        faculty?: T;
+        person?: T;
         id?: T;
       };
   studentLeaders?:
     | T
     | {
+        person?: T;
         name?: T;
         role?: T;
         unit?: T;

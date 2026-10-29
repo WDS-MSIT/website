@@ -10,6 +10,11 @@ import * as migration_20261028_175728_pages from './20261028_175728_pages';
 import * as migration_20261029_095355_events from './20261029_095355_events';
 import * as migration_20261029_102203_programmes from './20261029_102203_programmes';
 import * as migration_20261029_103230_placement_years from './20261029_103230_placement_years';
+import * as migration_20261029_183946_add_people_core from './20261029_183946_add_people_core';
+import * as migration_20261029_184008_attach_people from './20261029_184008_attach_people';
+import * as migration_20261029_184026_detach_faculty from './20261029_184026_detach_faculty';
+import * as migration_20261029_184043_detach_faculty_lock from './20261029_184043_detach_faculty_lock';
+import * as migration_20261029_184100_remove_faculty from './20261029_184100_remove_faculty';
 
 export const migrations = [
   {
@@ -70,6 +75,31 @@ export const migrations = [
   {
     up: migration_20261029_103230_placement_years.up,
     down: migration_20261029_103230_placement_years.down,
-    name: '20261029_103230_placement_years'
+    name: '20261029_103230_placement_years',
+  },
+  {
+    up: migration_20261029_183946_add_people_core.up,
+    down: migration_20261029_183946_add_people_core.down,
+    name: '20261029_183946_add_people_core',
+  },
+  {
+    up: migration_20261029_184008_attach_people.up,
+    down: migration_20261029_184008_attach_people.down,
+    name: '20261029_184008_attach_people',
+  },
+  {
+    up: migration_20261029_184026_detach_faculty.up,
+    down: migration_20261029_184026_detach_faculty.down,
+    name: '20261029_184026_detach_faculty',
+  },
+  {
+    up: migration_20261029_184043_detach_faculty_lock.up,
+    down: migration_20261029_184043_detach_faculty_lock.down,
+    name: '20261029_184043_detach_faculty_lock',
+  },
+  {
+    up: migration_20261029_184100_remove_faculty.up,
+    down: migration_20261029_184100_remove_faculty.down,
+    name: '20261029_184100_remove_faculty'
   },
 ];
