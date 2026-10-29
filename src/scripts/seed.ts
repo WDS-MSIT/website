@@ -10,6 +10,7 @@ import { seedCommittees } from '@/seed/committees'
 import { seedFacilities } from '@/seed/facilities'
 import { seedHomepage } from '@/seed/homepage'
 import { seedPages } from '@/seed/pages'
+import { seedPlacementYears } from '@/seed/placement-years'
 import { seedProgrammes } from '@/seed/programmes'
 import { seedSiteSettings } from '@/seed/site-settings'
 import { seedSocieties } from '@/seed/societies'
@@ -75,6 +76,7 @@ const seed = async (): Promise<void> => {
     payload.logger.info(`Seeded superadmin ${email}`)
     await seedDepartments(payload)
     await seedProgrammes(payload)
+    await seedPlacementYears(payload)
     await seedFaculty(payload)
     await seedCommittees(payload)
     await seedFacilities(payload)

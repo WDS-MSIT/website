@@ -9,6 +9,7 @@ import * as migration_20261027_201021_societies from './20261027_201021_societie
 import * as migration_20261028_175728_pages from './20261028_175728_pages';
 import * as migration_20261029_095355_events from './20261029_095355_events';
 import * as migration_20261029_102203_programmes from './20261029_102203_programmes';
+import * as migration_20261029_103230_placement_years from './20261029_103230_placement_years';
 
 export const migrations = [
   {
@@ -64,6 +65,11 @@ export const migrations = [
   {
     up: migration_20261029_102203_programmes.up,
     down: migration_20261029_102203_programmes.down,
-    name: '20261029_102203_programmes'
+    name: '20261029_102203_programmes',
+  },
+  {
+    up: migration_20261029_103230_placement_years.up,
+    down: migration_20261029_103230_placement_years.down,
+    name: '20261029_103230_placement_years'
   },
 ];

@@ -16,6 +16,7 @@ import { Societies } from './collections/Societies'
 import { Users } from './collections/Users'
 import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
+import { PlacementYears } from './collections/PlacementYears'
 import { Programmes } from './collections/Programmes'
 import { Updates } from './collections/Updates'
 import { Homepage } from './globals/Homepage'
@@ -75,6 +76,7 @@ export default buildConfig({
     Pages,
     Departments,
     Programmes,
+    PlacementYears,
     Faculty,
     Media,
     Documents,

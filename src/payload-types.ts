@@ -71,6 +71,7 @@ export interface Config {
     pages: Page;
     departments: Department;
     programmes: Programme;
+    'placement-years': PlacementYear;
     faculty: Faculty;
     media: Media;
     documents: Document;
@@ -90,6 +91,7 @@ export interface Config {
     pages: PagesSelect<false> | PagesSelect<true>;
     departments: DepartmentsSelect<false> | DepartmentsSelect<true>;
     programmes: ProgrammesSelect<false> | ProgrammesSelect<true>;
+    'placement-years': PlacementYearsSelect<false> | PlacementYearsSelect<true>;
     faculty: FacultySelect<false> | FacultySelect<true>;
     media: MediaSelect<false> | MediaSelect<true>;
     documents: DocumentsSelect<false> | DocumentsSelect<true>;
@@ -556,6 +558,70 @@ export interface Programme {
         id?: string | null;
       }[]
     | null;
+  updatedAt: string;
+  createdAt: string;
+  _status?: ('draft' | 'published') | null;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "placement-years".
+ */
+export interface PlacementYear {
+  id: number;
+  /**
+   * The graduating batch or placement year used by the source.
+   */
+  year: number;
+  placementStatus: 'final' | 'ongoing';
+  /**
+   * Especially important for ongoing years. Leave blank when the source gives no as-of date.
+   */
+  statisticsAsOf?: string | null;
+  /**
+   * Reviewed context that belongs to this year rather than the general Placements page.
+   */
+  narrativeNotes?: string | null;
+  /**
+   * Number of offers. The legacy table calls this “Job Heads”; confirm that interpretation before publishing.
+   */
+  offerCount?: number | null;
+  /**
+   * Highest annual package in lakh rupees per annum (LPA).
+   */
+  highestPackageLpa?: number | null;
+  /**
+   * Median annual package in lakh rupees per annum (LPA).
+   */
+  medianPackageLpa?: number | null;
+  /**
+   * Average annual package in lakh rupees per annum (LPA).
+   */
+  averagePackageLpa?: number | null;
+  /**
+   * Uncertainty, calculation basis, or other qualifications for these figures.
+   */
+  statisticsNote?: string | null;
+  /**
+   * Reviewed placement reports after they are migrated into Documents.
+   */
+  evidenceDocuments?: (number | Document)[] | null;
+  /**
+   * Temporary source links retained until placement reports are reviewed and moved into Documents.
+   */
+  legacyEvidence?:
+    | {
+        label: string;
+        url: string;
+        id?: string | null;
+      }[]
+    | null;
+  reviewStatus: 'unreviewed' | 'needs-confirmation' | 'verified' | 'rejected';
+  /**
+   * When an editor last verified the figures against their evidence.
+   */
+  reviewedAt?: string | null;
+  sourceUrl?: string | null;
+  sourceSnapshotFile?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -1076,6 +1142,10 @@ export interface PayloadLockedDocument {
         value: number | Programme;
       } | null)
     | ({
+        relationTo: 'placement-years';
+        value: number | PlacementYear;
+      } | null)
+    | ({
         relationTo: 'faculty';
         value: number | Faculty;
       } | null)
@@ -1414,6 +1484,36 @@ export interface ProgrammesSelect<T extends boolean = true> {
         snapshotFile?: T;
         id?: T;
       };
+  updatedAt?: T;
+  createdAt?: T;
+  _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "placement-years_select".
+ */
+export interface PlacementYearsSelect<T extends boolean = true> {
+  year?: T;
+  placementStatus?: T;
+  statisticsAsOf?: T;
+  narrativeNotes?: T;
+  offerCount?: T;
+  highestPackageLpa?: T;
+  medianPackageLpa?: T;
+  averagePackageLpa?: T;
+  statisticsNote?: T;
+  evidenceDocuments?: T;
+  legacyEvidence?:
+    | T
+    | {
+        label?: T;
+        url?: T;
+        id?: T;
+      };
+  reviewStatus?: T;
+  reviewedAt?: T;
+  sourceUrl?: T;
+  sourceSnapshotFile?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
