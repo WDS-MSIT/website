@@ -1,18 +1,32 @@
+import type { Metadata } from 'next'
 import React from 'react'
+
+import { SiteFooter } from '@/frontend/components/SiteFooter'
+import { SiteHeader } from '@/frontend/components/SiteHeader'
+import { findSiteSettings } from '@/frontend/data/site'
 import './styles.css'
 
-export const metadata = {
-  description: 'A blank template using Payload in a Next.js app.',
-  title: 'Payload Blank Template',
+export async function generateMetadata(): Promise<Metadata> {
+  const site = await findSiteSettings()
+
+  return {
+    description: site.affiliationSummary || undefined,
+    title: {
+      default: site.instituteName,
+      template: `%s | ${site.instituteName}`,
+    },
+  }
 }
 
-export default async function RootLayout(props: { children: React.ReactNode }) {
-  const { children } = props
+export default async function RootLayout({ children }: { children: React.ReactNode }) {
+  const site = await findSiteSettings()
 
   return (
     <html lang="en">
       <body>
-        <main>{children}</main>
+        <SiteHeader site={site} />
+        <main id="main-content">{children}</main>
+        <SiteFooter site={site} />
       </body>
     </html>
   )

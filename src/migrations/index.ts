@@ -15,6 +15,7 @@ import * as migration_20261029_184008_attach_people from './20261029_184008_atta
 import * as migration_20261029_184026_detach_faculty from './20261029_184026_detach_faculty';
 import * as migration_20261029_184043_detach_faculty_lock from './20261029_184043_detach_faculty_lock';
 import * as migration_20261029_184100_remove_faculty from './20261029_184100_remove_faculty';
+import * as migration_20261030_061602_redirects from './20261030_061602_redirects';
 
 export const migrations = [
   {
@@ -100,6 +101,11 @@ export const migrations = [
   {
     up: migration_20261029_184100_remove_faculty.up,
     down: migration_20261029_184100_remove_faculty.down,
-    name: '20261029_184100_remove_faculty'
+    name: '20261029_184100_remove_faculty',
+  },
+  {
+    up: migration_20261030_061602_redirects.up,
+    down: migration_20261030_061602_redirects.down,
+    name: '20261030_061602_redirects',
   },
 ];

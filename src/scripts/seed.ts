@@ -12,6 +12,7 @@ import { seedHomepage } from '@/seed/homepage'
 import { seedPages } from '@/seed/pages'
 import { seedPlacementYears } from '@/seed/placement-years'
 import { seedProgrammes } from '@/seed/programmes'
+import { seedRedirects } from '@/seed/redirects'
 import { seedSiteSettings } from '@/seed/site-settings'
 import { seedSocieties } from '@/seed/societies'
 import { seedUpdates } from '@/seed/updates'
@@ -86,6 +87,7 @@ const seed = async (): Promise<void> => {
     await seedPages(payload)
     await seedSiteSettings(payload)
     await seedHomepage(payload)
+    await seedRedirects(payload)
   } finally {
     await payload.destroy()
   }

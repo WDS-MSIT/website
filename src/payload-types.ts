@@ -80,6 +80,7 @@ export interface Config {
     facilities: Facility;
     societies: Society;
     updates: Update;
+    redirects: Redirect;
     'payload-kv': PayloadKv;
     'payload-locked-documents': PayloadLockedDocument;
     'payload-preferences': PayloadPreference;
@@ -100,6 +101,7 @@ export interface Config {
     facilities: FacilitiesSelect<false> | FacilitiesSelect<true>;
     societies: SocietiesSelect<false> | SocietiesSelect<true>;
     updates: UpdatesSelect<false> | UpdatesSelect<true>;
+    redirects: RedirectsSelect<false> | RedirectsSelect<true>;
     'payload-kv': PayloadKvSelect<false> | PayloadKvSelect<true>;
     'payload-locked-documents': PayloadLockedDocumentsSelect<false> | PayloadLockedDocumentsSelect<true>;
     'payload-preferences': PayloadPreferencesSelect<false> | PayloadPreferencesSelect<true>;
@@ -295,7 +297,6 @@ export interface Document {
   legacyUrl?: string | null;
   sourceUrl?: string | null;
   sourceSnapshotFile?: string | null;
-  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   _status?: ('draft' | 'published') | null;
@@ -384,7 +385,6 @@ export interface PageMediaBlock {
 export interface Media {
   id: number;
   alt: string;
-  _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
   url?: string | null;
@@ -1171,6 +1171,26 @@ export interface Update {
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redirects".
+ */
+export interface Redirect {
+  id: number;
+  /**
+   * An old local path beginning with /, without a domain or query string.
+   */
+  sourcePath: string;
+  /**
+   * The canonical local destination beginning with /. Redirect loops are rejected.
+   */
+  destinationPath: string;
+  permanent: boolean;
+  active: boolean;
+  note?: string | null;
+  updatedAt: string;
+  createdAt: string;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
  * via the `definition` "payload-kv".
  */
 export interface PayloadKv {
@@ -1244,6 +1264,10 @@ export interface PayloadLockedDocument {
     | ({
         relationTo: 'updates';
         value: number | Update;
+      } | null)
+    | ({
+        relationTo: 'redirects';
+        value: number | Redirect;
       } | null);
   globalSlug?: string | null;
   user: {
@@ -1640,7 +1664,6 @@ export interface PeopleSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
-  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   url?: T;
@@ -1665,7 +1688,6 @@ export interface DocumentsSelect<T extends boolean = true> {
   legacyUrl?: T;
   sourceUrl?: T;
   sourceSnapshotFile?: T;
-  _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
@@ -1938,6 +1960,19 @@ export interface UpdatesSelect<T extends boolean = true> {
   updatedAt?: T;
   createdAt?: T;
   _status?: T;
+}
+/**
+ * This interface was referenced by `Config`'s JSON-Schema
+ * via the `definition` "redirects_select".
+ */
+export interface RedirectsSelect<T extends boolean = true> {
+  sourcePath?: T;
+  destinationPath?: T;
+  permanent?: T;
+  active?: T;
+  note?: T;
+  updatedAt?: T;
+  createdAt?: T;
 }
 /**
  * This interface was referenced by `Config`'s JSON-Schema

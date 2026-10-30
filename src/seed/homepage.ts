@@ -3,6 +3,8 @@ import { readFile } from 'fs/promises'
 import path from 'path'
 import type { Payload } from 'payload'
 
+import { findCanonicalPath } from '@/seed/site-settings'
+
 type HomepageSeed = {
   campusTour: {
     gallery: { legacyImageUrl: string }[]
@@ -63,7 +65,7 @@ export const readHomepageSeed = async (): Promise<HomepageSeed> => {
       itemLimit: itemCount || 5,
       selectionMode: 'latest',
       updateType,
-      viewAllPath: viewAllPath || undefined,
+      viewAllPath: viewAllPath ? findCanonicalPath(viewAllPath) : undefined,
     })
   })
 

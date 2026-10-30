@@ -44,6 +44,48 @@ const normalizeText = (value: string): string =>
 
 const absoluteLegacyUrl = (url: string): string => new URL(url, 'https://msit.in').href
 
+export const canonicalRedirects = [
+  ['/academic-calendar', '/academics/academic-calendar'],
+  ['/administration', '/people/administration'],
+  ['/advisory', '/committees/grievance-redressal'],
+  ['/aicte', '/about/approvals/aicte'],
+  ['/antiragging', '/committees/anti-ragging-committee'],
+  ['/ap', '/departments/applied-sciences'],
+  ['/affiliation', '/about/affiliation'],
+  ['/attendance', '/students/attendance'],
+  ['/brochure', '/admissions/information-brochure'],
+  ['/cse', '/departments/cse'],
+  ['/disaster', '/committees/disaster-management-committee'],
+  ['/discipline', '/committees/discipline-committee'],
+  ['/ece', '/departments/ece'],
+  ['/eee', '/departments/eee'],
+  ['/history', '/about/history'],
+  ['/fromdesk', '/people/leadership'],
+  ['/govern', '/people/governance'],
+  ['/internship-cell', '/placements/internship-cell'],
+  ['/iqac', '/committees/iqac-cell'],
+  ['/it', '/departments/it'],
+  ['/latest_news', '/news'],
+  ['/magazines', '/publications/magazines'],
+  ['/nirf', '/about/nirf'],
+  ['/online_fee', '/students/online-fee'],
+  ['/po', '/academics/programme-outcomes'],
+  ['/posh', '/committees/internal-complaint-committee'],
+  ['/publications', '/research/publications'],
+  ['/reports', '/about/reports'],
+  ['/Research', '/research'],
+  ['/scstcell', '/committees/sc-st-cell'],
+  ['/society', '/societies'],
+  ['/swayam', '/academics/swayam'],
+  ['/syllabus', '/academics/syllabus'],
+  ['/timetable', '/academics/timetable'],
+  ['/visionmission', '/about/vision-and-mission'],
+] as const
+
+const canonicalPaths = new Map<string, string>(canonicalRedirects)
+
+export const findCanonicalPath = (path: string): string => canonicalPaths.get(path) || path
+
 const decodeCloudflareEmail = (encoded: string): string | undefined => {
   if (!/^[0-9a-f]+$/i.test(encoded) || encoded.length < 4 || encoded.length % 2 !== 0) {
     return undefined
@@ -78,8 +120,20 @@ const toNavigationLink = (label: string, url: string): NavigationLinkSeed | unde
 
   if (!base.label || !cleanUrl || cleanUrl === '#') return undefined
 
+  if (cleanUrl.startsWith('/media/')) {
+    return {
+      ...base,
+      destinationType: 'external-url',
+      externalUrl: absoluteLegacyUrl(cleanUrl),
+    }
+  }
+
   if (cleanUrl.startsWith('/')) {
-    return { ...base, destinationType: 'internal-path', internalPath: cleanUrl }
+    return {
+      ...base,
+      destinationType: 'internal-path',
+      internalPath: findCanonicalPath(cleanUrl),
+    }
   }
 
   return { ...base, destinationType: 'external-url', externalUrl: cleanUrl }
@@ -91,7 +145,11 @@ const toAnnouncementLink = (url: string): AnnouncementLinkSeed => {
 
   if (!cleanUrl || cleanUrl === '#') return { ...base, destinationType: 'none' }
   if (cleanUrl.startsWith('/')) {
-    return { ...base, destinationType: 'internal-path', internalPath: cleanUrl }
+    return {
+      ...base,
+      destinationType: 'internal-path',
+      internalPath: findCanonicalPath(cleanUrl),
+    }
   }
 
   return { ...base, destinationType: 'external-url', externalUrl: cleanUrl }
