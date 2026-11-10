@@ -1,4 +1,5 @@
 import { postgresAdapter } from '@payloadcms/db-postgres'
+import { resendAdapter } from '@payloadcms/email-resend'
 import { lexicalEditor } from '@payloadcms/richtext-lexical'
 import { s3Storage } from '@payloadcms/storage-s3'
 import path from 'path'
@@ -45,6 +46,23 @@ const storage =
       }
     : null
 
+const createEmailAdapter = () => {
+  const apiKey = process.env.RESEND_API_KEY
+  const defaultFromAddress = process.env.RESEND_FROM_ADDRESS
+
+  if (!apiKey) return undefined
+
+  if (!defaultFromAddress) {
+    throw new Error('RESEND_FROM_ADDRESS is required when RESEND_API_KEY is configured')
+  }
+
+  return resendAdapter({
+    apiKey,
+    defaultFromAddress,
+    defaultFromName: process.env.RESEND_FROM_NAME || 'MSIT CMS',
+  })
+}
+
 export default buildConfig({
   admin: {
     user: Users.slug,
@@ -87,11 +105,13 @@ export default buildConfig({
     Updates,
   ],
   globals: [SiteSettings, Homepage],
+  email: createEmailAdapter(),
   editor: lexicalEditor(),
   graphQL: {
     disable: true,
   },
   secret: process.env.PAYLOAD_SECRET || '',
+  serverURL: process.env.PAYLOAD_PUBLIC_SERVER_URL || '',
   typescript: {
     outputFile: path.resolve(dirname, 'payload-types.ts'),
   },

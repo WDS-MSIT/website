@@ -24,6 +24,7 @@ export const Users: CollectionConfig = {
   auth: {
     lockTime: 15 * 60 * 1000,
     maxLoginAttempts: 5,
+    verify: true,
   },
   hooks: {
     beforeChange: [protectLastSuperadminBeforeChange],

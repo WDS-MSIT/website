@@ -45,12 +45,14 @@ const seed = async (): Promise<void> => {
     })
 
     const data: {
+      _verified: boolean
       active: boolean
       email: string
       name: string
       password: string
       role: 'superadmin'
     } = {
+      _verified: true,
       active: true,
       email,
       name,
@@ -69,6 +71,7 @@ const seed = async (): Promise<void> => {
       await payload.create({
         collection: 'users',
         data,
+        disableVerificationEmail: true,
         overrideAccess: true,
       })
     }

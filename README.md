@@ -22,6 +22,22 @@ The MinIO API is available on port 9000 and its console is at `http://localhost:
 
 For production R2, replace the `S3_*` values with the R2 bucket, endpoint, and credentials. Set `S3_FORCE_PATH_STYLE=false` unless the deployment requires path-style requests.
 
+## Authentication email
+
+Payload sends new-account verification and password-reset emails through Resend
+when `RESEND_API_KEY` and `RESEND_FROM_ADDRESS` are set. Set
+`PAYLOAD_PUBLIC_SERVER_URL` to the public application origin so email links
+return to the correct Admin screen. `RESEND_FROM_NAME` is optional and defaults
+to `MSIT CMS`.
+
+For local testing, use `onboarding@resend.dev` as the sender and create a user
+with `delivered@resend.dev` to inspect the verification and password-reset
+emails in the Resend dashboard. Deployed environments must use a From address
+on a domain verified in Resend.
+
+If the Resend variables are omitted locally, Payload keeps its console email
+adapter and no real email is sent.
+
 ## Useful commands
 
 - `pnpm lint` checks the source with ESLint.
