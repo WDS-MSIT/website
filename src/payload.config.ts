@@ -19,6 +19,7 @@ import { Media } from './collections/Media'
 import { Pages } from './collections/Pages'
 import { PlacementYears } from './collections/PlacementYears'
 import { Programmes } from './collections/Programmes'
+import { Redirects } from './collections/Redirects'
 import { Updates } from './collections/Updates'
 import { Homepage } from './globals/Homepage'
 import { SiteSettings } from './globals/SiteSettings'
@@ -121,6 +122,7 @@ export default buildConfig({
     Facilities,
     Societies,
     Updates,
+    Redirects,
   ],
   globals: [SiteSettings, Homepage],
   email: createEmailAdapter(),

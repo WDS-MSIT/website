@@ -51,6 +51,12 @@ const sources: PageSource[] = [
     title: 'Academic Calendar',
   },
   {
+    file: 'po.html',
+    legacyPath: '/po',
+    slug: 'academics/programme-outcomes',
+    title: 'Programme Outcomes',
+  },
+  {
     file: 'aicte.html',
     legacyPath: '/aicte',
     slug: 'about/approvals/aicte',
@@ -108,6 +114,12 @@ const sources: PageSource[] = [
     legacyPath: '/timetable',
     slug: 'academics/timetable',
     title: 'Timetable',
+  },
+  {
+    file: 'attendance.html',
+    legacyPath: '/attendance',
+    slug: 'students/attendance',
+    title: 'Attendance',
   },
 ]
 
