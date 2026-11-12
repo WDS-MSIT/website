@@ -80,6 +80,10 @@ Uploads need durable object storage in production without making local developme
 
 Use `@payloadcms/storage-s3` for upload collections. Local development targets MinIO. Deployed environments target Cloudflare R2 through its S3-compatible API. Provider details enter through `S3_*` environment variables.
 
+Register Media and Documents separately against the same S3-compatible bucket. Media uploads pass through Payload so image processing remains available. Documents use Payload's client-upload flow: Payload authorizes the request and issues a short-lived signed URL, while the browser sends the file bytes directly to object storage.
+
+Store the collections under distinct `media/` and `documents/` prefixes. Serve both through the public base URL in `S3_PUBLIC_URL`; local environments use MinIO's public bucket URL and deployed environments use the R2 development URL or custom media domain.
+
 ### Alternatives considered
 
 - Local filesystem storage does not exercise the production storage boundary.
@@ -87,11 +91,13 @@ Use `@payloadcms/storage-s3` for upload collections. Local development targets M
 
 ### Consequences
 
-Local development requires MinIO when testing uploads. Production must supply R2 credentials and use the appropriate endpoint and path-style setting. Additional upload collections must be registered with the same adapter.
+Local development requires MinIO when testing uploads. Production must supply R2 credentials and use the appropriate endpoint, public URL, and path-style setting. Direct browser uploads also require CORS for the Admin origins. `S3_CORS_ORIGINS` configures local MinIO through Compose; production provisioning must apply those origins to the R2 bucket.
+
+Document size and declared MIME type are checked before Payload grants a signed upload. The signature binds the upload request headers, but it does not inspect the file contents. Strong content verification or malware scanning would require a separate post-upload process.
 
 ### Verification
 
-Start the Compose MinIO services, upload a media record, and confirm that its object exists in the `msit-media` bucket. Repeat against a non-production R2 environment before deployment.
+Start the Compose MinIO services. Confirm that a Media image passes through Payload into the `media/` prefix, that a Document uploads directly into the `documents/` prefix, and that both public URLs are retrievable. Repeat against a non-production R2 environment before deployment.
 
 ## ADR-003: Keep migration evidence separate from content records
 

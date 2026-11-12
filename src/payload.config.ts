@@ -42,9 +42,27 @@ const storage =
         accessKeyId: requiredEnv('S3_ACCESS_KEY_ID'),
         bucket: requiredEnv('S3_BUCKET'),
         endpoint: requiredEnv('S3_ENDPOINT'),
+        publicUrl: process.env.S3_PUBLIC_URL?.replace(/\/$/, ''),
         secretAccessKey: requiredEnv('S3_SECRET_ACCESS_KEY'),
       }
     : null
+
+const storageConfig = {
+  credentials: {
+    accessKeyId: storage?.accessKeyId || '',
+    secretAccessKey: storage?.secretAccessKey || '',
+  },
+  endpoint: storage?.endpoint,
+  forcePathStyle: process.env.S3_FORCE_PATH_STYLE === 'true',
+  region: process.env.S3_REGION || 'auto',
+}
+
+const createPublicFileUrl =
+  (publicUrl: string) =>
+  ({ filename, prefix }: { filename: string; prefix?: string }): string => {
+    const key = prefix ? `${prefix}/${filename}` : filename
+    return `${publicUrl}/${key}`
+  }
 
 const createEmailAdapter = () => {
   const apiKey = process.env.RESEND_API_KEY
@@ -123,21 +141,39 @@ export default buildConfig({
   sharp,
   plugins: [
     s3Storage({
+      alwaysInsertFields: true,
       enabled: storage !== null,
       collections: {
-        documents: true,
-        media: true,
+        media: storage?.publicUrl
+          ? {
+              disablePayloadAccessControl: true,
+              generateFileURL: createPublicFileUrl(storage.publicUrl),
+              prefix: 'media',
+            }
+          : {
+              prefix: 'media',
+            },
       },
       bucket: storage?.bucket || '',
-      config: {
-        credentials: {
-          accessKeyId: storage?.accessKeyId || '',
-          secretAccessKey: storage?.secretAccessKey || '',
-        },
-        endpoint: storage?.endpoint,
-        forcePathStyle: process.env.S3_FORCE_PATH_STYLE === 'true',
-        region: process.env.S3_REGION || 'auto',
+      config: storageConfig,
+    }),
+    s3Storage({
+      alwaysInsertFields: true,
+      enabled: storage !== null,
+      clientUploads: true,
+      collections: {
+        documents: storage?.publicUrl
+          ? {
+              disablePayloadAccessControl: true,
+              generateFileURL: createPublicFileUrl(storage.publicUrl),
+              prefix: 'documents',
+            }
+          : {
+              prefix: 'documents',
+            },
       },
+      bucket: storage?.bucket || '',
+      config: storageConfig,
     }),
   ],
 })

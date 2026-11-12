@@ -297,6 +297,7 @@ export interface Document {
   legacyUrl?: string | null;
   sourceUrl?: string | null;
   sourceSnapshotFile?: string | null;
+  prefix?: string | null;
   _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -386,6 +387,7 @@ export interface PageMediaBlock {
 export interface Media {
   id: number;
   alt: string;
+  prefix?: string | null;
   _objectKey?: string | null;
   updatedAt: string;
   createdAt: string;
@@ -1644,6 +1646,7 @@ export interface PeopleSelect<T extends boolean = true> {
  */
 export interface MediaSelect<T extends boolean = true> {
   alt?: T;
+  prefix?: T;
   _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;
@@ -1669,6 +1672,7 @@ export interface DocumentsSelect<T extends boolean = true> {
   legacyUrl?: T;
   sourceUrl?: T;
   sourceSnapshotFile?: T;
+  prefix?: T;
   _objectKey?: T;
   updatedAt?: T;
   createdAt?: T;

@@ -37,7 +37,7 @@ services:
       - postgres-data:/var/lib/postgresql/data
 
   minio:
-    image: quay.io/minio/minio:latest
+    image: cgr.dev/chainguard/minio@sha256:db3f583fa49121942168bd6383a773b2cde3384c9a99bf7193560b9a0f3a28fd
     restart: unless-stopped
     command: server /data --console-address ':9001'
     ports:
@@ -46,8 +46,9 @@ services:
     environment:
       MINIO_ROOT_USER: minioadmin
       MINIO_ROOT_PASSWORD: minioadmin
+      MINIO_API_CORS_ALLOW_ORIGIN: ${S3_CORS_ORIGINS:-http://localhost:3000}
     healthcheck:
-      test: ['CMD', 'curl', '-f', 'http://localhost:9000/minio/health/live']
+      test: ['CMD', 'mc', 'ready', 'local']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -55,7 +56,7 @@ services:
       - minio-data:/data
 
   minio-init:
-    image: quay.io/minio/mc:latest
+    image: cgr.dev/chainguard/minio@sha256:db3f583fa49121942168bd6383a773b2cde3384c9a99bf7193560b9a0f3a28fd
     depends_on:
       minio:
         condition: service_healthy

@@ -32,6 +32,13 @@ Keep work here only when the project has chosen to postpone it. Remove an item w
 - Migrate seeded `legacyAttachments` from `msit.in` into reviewed Documents before retiring the old file host.
 - Download, validate, deduplicate, and review legacy files when S3/R2 migration work begins.
 
+## Seeded file migration
+
+- Extend the seed/import pipeline to download and validate every referenced legacy file, upload images into Media and document files into Documents, and attach those records to the relevant departments, people, societies, updates, events, pages, facilities, and globals.
+- Retain each old `msit.in` file URL as provenance, but stop using legacy URLs as the file served by seeded content after its object has been reviewed and uploaded.
+- Make file ingestion idempotent so reseeding reuses the same Media or Document record and object instead of uploading duplicates.
+- Decide how failed downloads, unsupported MIME types, duplicate files, and objects that exceed the configured upload limit are reported for editorial review.
+
 ## Society content
 
 - Assign society categories during editorial review; the legacy page does not provide categories.
@@ -44,4 +51,5 @@ Keep work here only when the project has chosen to postpone it. Remove an item w
 
 - Select the production hosting platform and managed PostgreSQL provider.
 - Confirm the production R2 bucket policy, CORS policy, public URL, and cache policy.
-- Run the full PostgreSQL and MinIO integration suite when Docker Desktop is available.
+- Apply `S3_CORS_ORIGINS` to the production R2 bucket through its deployment provisioning; application environment variables do not change bucket policy by themselves.
+- Add an automated integration check for server-processed Media uploads, direct Documents uploads, and public object retrieval against MinIO and a non-production R2 bucket.
