@@ -24,7 +24,11 @@ export function SiteHeader({ site }: { site: SiteSetting }) {
         ) : null}
 
         <div className="site-identity">
-          <Link aria-label={`${site.instituteName} homepage`} href="/">
+          <Link
+            aria-label={`${site.instituteName} homepage`}
+            className="site-identity-link"
+            href="/"
+          >
             <CmsImage
               alt={`${site.instituteName} logo`}
               className="site-logo"
@@ -53,8 +57,11 @@ export function SiteHeader({ site }: { site: SiteSetting }) {
         {site.navigationGroups?.length ? (
           <nav aria-label="Site sections" className="grouped-navigation">
             {site.navigationGroups.map((group, groupIndex) => (
-              <section key={group.id || `${group.label}-${groupIndex}`}>
-                <h2>{group.label}</h2>
+              <details
+                className="navigation-group"
+                key={group.id || `${group.label}-${groupIndex}`}
+              >
+                <summary>{group.label}</summary>
                 <ul>
                   {(group.links || []).map((link, linkIndex) => (
                     <li key={link.id || `${link.label}-${linkIndex}`}>
@@ -62,20 +69,32 @@ export function SiteHeader({ site }: { site: SiteSetting }) {
                     </li>
                   ))}
                 </ul>
-              </section>
+              </details>
             ))}
           </nav>
         ) : null}
 
         {site.announcements?.length ? (
           <aside aria-label="Announcements" className="site-announcements">
-            <ul>
-              {site.announcements.map((announcement, index) => (
-                <li key={announcement.id || `${announcement.message}-${index}`}>
-                  <CmsLink link={announcement}>{announcement.message}</CmsLink>
-                </li>
-              ))}
-            </ul>
+            <strong>Campus bulletin</strong>
+            <div className="site-announcements-window">
+              <div className="site-announcements-track">
+                <ul>
+                  {site.announcements.map((announcement, index) => (
+                    <li key={announcement.id || `${announcement.message}-${index}`}>
+                      <CmsLink link={announcement}>{announcement.message}</CmsLink>
+                    </li>
+                  ))}
+                </ul>
+                <ul aria-hidden="true">
+                  {site.announcements.map((announcement, index) => (
+                    <li key={`duplicate-${announcement.id || index}`}>
+                      <span>{announcement.message}</span>
+                    </li>
+                  ))}
+                </ul>
+              </div>
+            </div>
           </aside>
         ) : null}
       </header>

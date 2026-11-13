@@ -1,5 +1,5 @@
 import { CmsImage } from '@/frontend/components/CmsImage'
-import { CmsLink } from '@/frontend/components/CmsLink'
+import { HeroCarousel } from '@/frontend/components/HeroCarousel'
 import { findSafeHref, findSafeResourceUrl } from '@/frontend/data/urls'
 import type { Homepage, Update } from '@/payload-types'
 import type { HomepageUpdateSection } from '@/frontend/types'
@@ -26,70 +26,51 @@ export function HomeTemplate({
 
   return (
     <article className="homepage">
-      <header className="page-header">
-        <h1>{homepage.heading}</h1>
-      </header>
+      {homepage.heroSlides?.length ? <HeroCarousel slides={homepage.heroSlides} /> : null}
 
-      {homepage.heroSlides?.length ? (
-        <section aria-labelledby="homepage-highlights-heading" className="hero-highlights">
-          <h2 id="homepage-highlights-heading">Highlights</h2>
-          <ol className="hero-list">
-            {homepage.heroSlides.map((slide, index) => (
-              <li key={slide.id || `${slide.caption}-${index}`}>
-                <CmsLink link={slide}>
-                  <figure>
-                    <CmsImage
-                      alt={slide.caption}
-                      className="hero-image"
-                      legacyUrl={slide.legacyImageUrl}
-                      media={slide.image}
-                    />
-                    <figcaption>{slide.caption}</figcaption>
-                  </figure>
-                </CmsLink>
-              </li>
-            ))}
-          </ol>
-        </section>
-      ) : null}
+      <div className="homepage-updates">
+        {updateSections.map((section, sectionIndex) => {
+          const viewAllHref = findSafeHref(section.viewAllPath)
 
-      {updateSections.map((section, sectionIndex) => (
-        <section
-          aria-labelledby={`homepage-update-section-${sectionIndex}`}
-          className="update-section"
-          key={`${section.heading}-${sectionIndex}`}
-        >
-          <h2 id={`homepage-update-section-${sectionIndex}`}>{section.heading}</h2>
-          {section.updates.length ? (
-            <ol className="record-list update-list">
-              {section.updates.map((update) => {
-                const publicationDate = formatDate(update.publicationDate)
+          return (
+            <section
+              aria-labelledby={`homepage-update-section-${sectionIndex}`}
+              className="update-section"
+              key={`${section.heading}-${sectionIndex}`}
+            >
+              <header className="update-section-header">
+                <h2 id={`homepage-update-section-${sectionIndex}`}>{section.heading}</h2>
+                {viewAllHref ? <a href={viewAllHref}>View all</a> : null}
+              </header>
+              {section.updates.length ? (
+                <ol className="record-list update-list">
+                  {section.updates.map((update) => {
+                    const publicationDate = formatDate(update.publicationDate)
 
-                return (
-                  <li key={update.id}>
-                    <article className="update-summary">
-                      <h3>
-                        <a href={updateHref(update)}>{update.title}</a>
-                      </h3>
-                      {publicationDate ? (
-                        <time dateTime={update.publicationDate || undefined}>
-                          {publicationDate}
-                        </time>
-                      ) : null}
-                      {update.excerpt ? <p>{update.excerpt}</p> : null}
-                    </article>
-                  </li>
-                )
-              })}
-            </ol>
-          ) : (
-            <p>No published items are currently available.</p>
-          )}
-          {findSafeHref(section.viewAllPath) ? (
-            <a href={findSafeHref(section.viewAllPath)}>View all</a>
-          ) : null}
-        </section>
-      ))}
+                    return (
+                      <li key={update.id}>
+                        <article className="update-summary">
+                          <h3>
+                            <a href={updateHref(update)}>{update.title}</a>
+                          </h3>
+                          {publicationDate ? (
+                            <time dateTime={update.publicationDate || undefined}>
+                              {publicationDate}
+                            </time>
+                          ) : null}
+                          {update.excerpt ? <p>{update.excerpt}</p> : null}
+                        </article>
+                      </li>
+                    )
+                  })}
+                </ol>
+              ) : (
+                <p>No published items are currently available.</p>
+              )}
+            </section>
+          )
+        })}
+      </div>
 
       {homepage.campusTour?.heading ||
       homepage.campusTour?.videoUrl ||

@@ -5,6 +5,12 @@ import type { SiteSetting } from '@/payload-types'
 export function SiteFooter({ site }: { site: SiteSetting }) {
   return (
     <footer className="site-footer">
+      <section className="footer-brand">
+        <p className="footer-mark">MSIT</p>
+        <h2>{site.instituteName}</h2>
+        {site.affiliationSummary ? <p>{site.affiliationSummary}</p> : null}
+      </section>
+
       <section aria-labelledby="site-contact-heading" className="site-contact">
         <h2 id="site-contact-heading">Contact</h2>
         {site.address ? <address>{site.address}</address> : null}

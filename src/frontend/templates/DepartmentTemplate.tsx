@@ -69,7 +69,7 @@ export function DepartmentTemplate({
       <section aria-labelledby="department-people-heading" className="content-section">
         <h2 id="department-people-heading">People</h2>
         {people.length ? (
-          <ul className="record-list people-list">
+          <ul className="compact-directory-list people-list">
             {people.map((person) => (
               <li key={person.id}>
                 <article className="person-summary">
