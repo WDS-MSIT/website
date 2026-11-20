@@ -113,7 +113,7 @@ const FALLBACK_GROUPS: NavGroup[] = [
   {
     label: 'Life at MSIT',
     links: [
-      internal('Student Societies', '/society'),
+      internal('Student Societies', '/societies'),
       internal('Events & Festivals', '/events'),
       internal('Newsletters & Magazines', '/newsletters-magazines'),
       internal('Anti-Ragging', '/antiragging'),
@@ -168,7 +168,7 @@ const FALLBACK_FOOTER_COLUMNS: NavGroup[] = [
       internal('About MSIT', '/about'),
       internal('Admissions 2026', '/online-fee'),
       internal('Academic Programs', '/cse'),
-      internal('Campus Life', '/society'),
+      internal('Campus Life', '/societies'),
       internal('Download Brochure', '/brochure'),
     ],
   },
