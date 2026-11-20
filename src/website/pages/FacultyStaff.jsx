@@ -7,9 +7,12 @@ import {
 } from 'lucide-react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import PageHero from '../components/PageHero';
-import { facultyMembers } from '../data/facultyData';
+import { facultyMembers as fileFacultyMembers } from '../data/facultyData';
+import { useCmsFaculty } from '../cms/people';
 
 const FacultyStaff = () => {
+    // The website's directory, updated from CMS People (see useCmsFaculty).
+    const facultyMembers = useCmsFaculty(fileFacultyMembers);
     const [searchQuery, setSearchQuery] = useState(() => {
         const params = new URLSearchParams(window.location.search);
         return params.get('search') || '';

@@ -13,6 +13,7 @@ import NewslettersMagazines from '../components/NewslettersMagazines';
 import SocietyDetailView from '../components/SocietyDetailView';
 import SocietiesHubView from '../components/SocietiesHubView';
 import { societiesData } from '../data/societiesData';
+import { toSocietyDetail, useCmsSocieties } from '../cms/societies';
 import { createSlugifier } from '../utils/slugify';
 
 import DepartmentLabsSection from '../components/DepartmentLabsSection';
@@ -21,6 +22,7 @@ const DynamicPage = () => {
     const { slug } = useParams();
     const pageData = pagesData[slug];
     const navigate = useNavigate();
+    const cmsSocieties = useCmsSocieties();
     const [selectedMember, setSelectedMember] = useState(null);
     const [activeFeeTab, setActiveFeeTab] = useState('pay');
     const [activeEventTab, setActiveEventTab] = useState('avensis');
@@ -180,8 +182,14 @@ const DynamicPage = () => {
     };
 
     // Dedicated Full-Featured View for Individual Society Pages (e.g. GeekRoom, IEEE, NDLI)
-    if (societiesData[slug]) {
-        return <SocietyDetailView society={societiesData[slug]} />;
+    // The CMS society with this page id (if any) is laid over the website's page; CMS-only
+    // societies get a page too.
+    const cmsSociety = cmsSocieties ? cmsSocieties[slug] : undefined;
+    if (societiesData[slug] || cmsSociety) {
+        return <SocietyDetailView society={toSocietyDetail(cmsSociety, societiesData[slug])} />;
+    }
+    if (slug?.startsWith('society-') && cmsSocieties === undefined) {
+        return <main className="min-h-screen bg-slate-50 flex items-center justify-center p-6"><p className="text-slate-500">Loading…</p></main>;
     }
 
     // Dedicated Redesigned View for the Student Societies Hub Directory (/society)

@@ -3,6 +3,8 @@ import { useParams, Link } from 'react-router-dom';
 import { ArrowLeft, FileText, Download, Link2, Calendar, Tag, Share2, Printer } from 'lucide-react';
 import SEO from '../components/SEO';
 import PageHero from '../components/PageHero';
+import { RichText } from '@payloadcms/richtext-lexical/react';
+import { isCmsNewsId, useCmsNewsItem } from '../cms/news';
 
 const newsDb = {
     "1": {
@@ -500,15 +502,26 @@ const newsDb = {
 
 const NewsDetail = () => {
     const { id } = useParams();
-    
+    // CMS updates and events have ids "u-<slug>" / "e-<slug>" and are read from the CMS.
+    const isCms = isCmsNewsId(id);
+    const cmsItem = useCmsNewsItem(id);
+
     // Retrieve from local storage to allow admin-published news/events
     const storedEvents = typeof window !== 'undefined' ? (localStorage.getItem('msit_events_v4') || localStorage.getItem('msit_events_v3') || localStorage.getItem('msit_events_v2') || localStorage.getItem('msit_events')) : null;
     const localEventsList = storedEvents ? JSON.parse(storedEvents) : [];
     const localItem = localEventsList.find(e => String(e.id) === String(id));
     const dbItem = newsDb[id] || {};
     
+    if (isCms && cmsItem === undefined) {
+        return (
+            <main className="min-h-screen bg-slate-50 flex items-center justify-center p-6">
+                <p className="text-slate-500">Loading…</p>
+            </main>
+        );
+    }
+
     // Merge: if localItem exists, prioritize local properties but ensure content, attachments, links, and images fall back to dbItem
-    const item = localItem ? {
+    const item = isCms ? (cmsItem || null) : localItem ? {
         ...dbItem,
         ...localItem,
         content: (localItem.content && localItem.content.trim()) ? localItem.content : (dbItem.content || `<p class="text-slate-600 leading-relaxed font-medium">${localItem.summary || localItem.title}</p>`),
@@ -577,11 +590,17 @@ const NewsDetail = () => {
                                 {item.title}
                             </h2>
 
-                            {/* HTML Content */}
-                            <article 
-                                className="prose prose-slate prose-lg max-w-none text-slate-600 leading-relaxed font-medium [&_h3]: [&_strong]:"
-                                dangerouslySetInnerHTML={{ __html: item.content }}
-                            />
+                            {/* HTML Content; CMS items render their rich text as React elements, never raw HTML */}
+                            {item.richText ? (
+                                <article className="max-w-none text-slate-600 text-lg leading-relaxed font-medium space-y-6 [&_h2]:text-2xl [&_h3]:text-2xl [&_:is(h2,h3)]:font-bold [&_:is(h2,h3)]:text-slate-900 [&_:is(h2,h3)]:mt-10 [&_ul]:list-disc [&_ul]:pl-6 [&_ol]:list-decimal [&_ol]:pl-6 [&_a]:text-primary [&_a]:underline">
+                                    <RichText data={item.richText} />
+                                </article>
+                            ) : (
+                                <article
+                                    className="prose prose-slate prose-lg max-w-none text-slate-600 leading-relaxed font-medium [&_h3]: [&_strong]:"
+                                    dangerouslySetInnerHTML={{ __html: item.content || "" }}
+                                />
+                            )}
                         </div>
                     </div>
 

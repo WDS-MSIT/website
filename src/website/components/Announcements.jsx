@@ -1,8 +1,10 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Link } from 'react-router-dom';
 import { ArrowRight, FileText, Megaphone, Pause, Play } from 'lucide-react';
+import { useCmsAnnouncements } from '../cms/news';
 
 // Official notices from msit.in (Latest News and Notices panels), linked to their PDFs.
+// Shown until the CMS answers; then Site Settings → Announcements is used (see useCmsAnnouncements).
 const ANNOUNCEMENTS = [
     { title: "Notice Regarding Late Fee Submission Academic Session 2026-27", url: "https://msit.in/media/news/notice-regarding-late-fee-submission-academic-session-2026-27.pdf" },
     { title: "Notice regarding Extension of Fee Submission Date up to 30.09.2026", url: "https://msit.in/media/news/notice-regarding-extension-of-fee-submission-date-up-to-30092026.pdf" },
@@ -20,6 +22,7 @@ const SECONDS_PER_PASS = 40;
 
 /** Slowly auto-scrolling list of official notices; pauses on hover or with the button. */
 const Announcements = () => {
+    const announcements = useCmsAnnouncements(ANNOUNCEMENTS);
     const [paused, setPaused] = useState(false);
     // How many times the list repeats in each half of the track; grows when the box is taller than one list.
     const [repeats, setRepeats] = useState(1);
@@ -39,7 +42,7 @@ const Announcements = () => {
         const observer = new ResizeObserver(update);
         observer.observe(box);
         return () => observer.disconnect();
-    }, []);
+    }, [announcements]);
 
     // Each half of the track holds the list `repeats` times; the track scrolls by exactly one half.
     const copies = repeats * 2;
@@ -71,25 +74,36 @@ const Announcements = () => {
                     style={{ animationDuration: `${SECONDS_PER_PASS * repeats}s` }}
                 >
                     {Array.from({ length: copies }, (_, copy) =>
-                        ANNOUNCEMENTS.map(item => {
+                        announcements.map((item, index) => {
                             const isFirst = copy === 0;
+                            const body = (
+                                <>
+                                    <FileText className="w-4 h-4 mt-0.5 shrink-0 text-primary/70" />
+                                    <span className="text-sm leading-snug text-slate-700 group-hover:text-primary transition-colors">{item.title}</span>
+                                </>
+                            );
+                            const rowClass = 'group flex gap-3 py-3.5 border-b border-slate-100 hover:bg-slate-50 px-2 rounded-lg transition-colors';
                             return (
                                 <li
-                                    key={`${copy}-${item.url}`}
+                                    key={`${copy}-${index}-${item.url || item.title}`}
                                     data-first={isFirst || undefined}
                                     aria-hidden={!isFirst || undefined}
                                     className={isFirst ? undefined : 'motion-reduce:hidden'}
                                 >
-                                    <a
-                                        href={item.url}
-                                        target="_blank"
-                                        rel="noopener noreferrer"
-                                        tabIndex={isFirst ? undefined : -1}
-                                        className="group flex gap-3 py-3.5 border-b border-slate-100 hover:bg-slate-50 px-2 rounded-lg transition-colors"
-                                    >
-                                        <FileText className="w-4 h-4 mt-0.5 shrink-0 text-primary/70" />
-                                        <span className="text-sm leading-snug text-slate-700 group-hover:text-primary transition-colors">{item.title}</span>
-                                    </a>
+                                    {/* A CMS announcement can be plain text, without a link */}
+                                    {item.url ? (
+                                        <a
+                                            href={item.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            tabIndex={isFirst ? undefined : -1}
+                                            className={rowClass}
+                                        >
+                                            {body}
+                                        </a>
+                                    ) : (
+                                        <div className={rowClass}>{body}</div>
+                                    )}
                                 </li>
                             );
                         })

@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import PageHero from '../components/PageHero';
 import KeyFiguresStrip from '../components/KeyFiguresStrip';
 import { facultyMembers } from '../data/facultyData';
+import { useCmsPlacementFigures, useCmsPlacementRecords } from '../cms/placements';
 
 const Placements = () => {
     const [selectedMember, setSelectedMember] = useState(null);
@@ -97,8 +98,8 @@ const Placements = () => {
         { nameQuery: "Sachit Rathee", branch: "EEE" }
     ];
 
-    // Placement Statistics Management
-    const placementRecords = [
+    // Placement Statistics Management (replaced by CMS Placement Years once the CMS answers)
+    const filePlacementRecords = [
 
     // ...
         { year: "2025", link: "https://www.msit.in/media/uploads/2025/10/09/msit-placement-batch-2025.pdf" },
@@ -132,12 +133,14 @@ const Placements = () => {
         { name: "IBM", category: "Services", logo: "/logos/recruiters/ibm.svg" }
     ];
 
-    const keyFigures = [
+    const fileKeyFigures = [
         { value: "95%+", label: "Placement Rate", note: "For eligible stream students" },
         { value: "250+", label: "Recruiters", note: "Product & services companies" },
         { value: "₹1.2 Cr", label: "Highest Package", note: "National and global placements" },
         { value: "₹7–8.5 LPA", label: "Average Package", note: "Consistent upward salary trends" }
     ];
+    const placementRecords = useCmsPlacementRecords(filePlacementRecords);
+    const keyFigures = useCmsPlacementFigures(fileKeyFigures);
 
     const trainingPrograms = [
         {

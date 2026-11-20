@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import SEO from '../components/SEO';
 import Announcements from '../components/Announcements';
+import { useCmsAnnouncements, useCmsNews } from '../cms/news';
 
 
 const CAMPUS_GALLERY = [
@@ -569,7 +570,7 @@ const Home = () => {
         return 9;
     };
 
-    const [events] = useState(() => {
+    const [fileEvents] = useState(() => {
         const defaultEvents = [
             { 
                 id: 10, 
@@ -849,6 +850,12 @@ const Home = () => {
         return defaultEvents;
     });
 
+    // Published CMS updates and events join the built-in list; undated items sort to the end.
+    const cmsNews = useCmsNews();
+    const events = [...cmsNews, ...fileEvents];
+    // The alert strip shows the first Site Settings announcement once the CMS has one.
+    const [alertItem] = useCmsAnnouncements([{ title: 'Admissions Open for Batch 2026-30. Last date to apply for B.Tech programs is April 30th.', url: null }]);
+
     const normalizeCategory = (label, category) => {
         const text = `${label || ''} ${category || ''}`.toLowerCase().trim();
         if (text.includes('event')) return 'events';
@@ -974,7 +981,9 @@ const Home = () => {
                 <div className="max-w-7xl mx-auto px-6 flex items-center">
                     <div className="bg-alert text-white text-xs font-black uppercase tracking-widest px-2.5 py-1 rounded-sm mr-6 shrink-0 shadow-card">Alert</div>
                     <div className="text-sm font-semibold text-title truncate flex-grow tracking-tight">
-                        Admissions Open for Batch 2026-30. Last date to apply for B.Tech programs is April 30th.
+                        {alertItem.url ? (
+                            <a href={alertItem.url} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">{alertItem.title}</a>
+                        ) : alertItem.title}
                     </div>
                 </div>
             </div>

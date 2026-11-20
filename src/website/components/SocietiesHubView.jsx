@@ -2,6 +2,7 @@ import React, { useState, useMemo, useEffect } from 'react';
 import { Link } from 'react-router-dom';
 import { Search, ArrowRight } from 'lucide-react';
 import { allSocietiesList } from '../data/societiesData';
+import { useCmsSocietyList } from '../cms/societies';
 
 // Counts from 0 to `to` once when the page opens, at a steady pace so every counter lands at the same moment. Shows the final number straight away for reduced motion.
 const CountUp = ({ to, duration = 1400 }) => {
@@ -35,20 +36,23 @@ const SocietiesHubView = () => {
         'Social Responsibility'
     ];
 
+    // Website societies updated from the CMS, plus societies that exist only in the CMS.
+    const societies = useCmsSocietyList(allSocietiesList);
+
     // One directory: flagship societies first, then the rest in their listed order.
     const filteredSocieties = useMemo(() => {
         const q = searchQuery.toLowerCase();
-        return allSocietiesList
+        return societies
             .filter(society => {
                 const matchesCat = selectedCategory === 'All' || society.category === selectedCategory;
                 const matchesSearch =
                     society.name.toLowerCase().includes(q) ||
-                    society.tagline.toLowerCase().includes(q) ||
-                    society.description.toLowerCase().includes(q);
+                    (society.tagline || '').toLowerCase().includes(q) ||
+                    (society.description || '').toLowerCase().includes(q);
                 return matchesCat && matchesSearch;
             })
             .sort((a, b) => Number(Boolean(b.featured)) - Number(Boolean(a.featured)));
-    }, [selectedCategory, searchQuery]);
+    }, [societies, selectedCategory, searchQuery]);
 
     return (
         <div className="space-y-12 sm:space-y-16">
