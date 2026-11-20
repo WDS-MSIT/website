@@ -9,7 +9,7 @@ export function UpdateTemplate({ update }: { update: Update }) {
   )
   const externalLink = findSafeHref(update.externalLink)
   return (
-    <article className="update-page">
+    <article className="cms-page update-page">
       <header className="page-header">
         <CmsImage alt="" media={update.thumbnail} />
         <p>{update.type}</p>

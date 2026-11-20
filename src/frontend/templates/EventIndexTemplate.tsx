@@ -6,7 +6,7 @@ const date = (value?: null | string) =>
   value ? new Date(value).toLocaleDateString('en-IN', { dateStyle: 'long' }) : undefined
 export function EventIndexTemplate({ result }: { result: PaginatedDocs<Event> }) {
   return (
-    <article className="event-index">
+    <article className="cms-page event-index">
       <header className="page-header">
         <h1>Events</h1>
       </header>

@@ -23,7 +23,7 @@ export function ProgrammeTemplate({ programme }: { programme: Programme }) {
   )
 
   return (
-    <article className="programme-page">
+    <article className="cms-page programme-page">
       <header className="page-header">
         <h1>{programme.name}</h1>
         {programme.shortName ? <p>{programme.shortName}</p> : null}

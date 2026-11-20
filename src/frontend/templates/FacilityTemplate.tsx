@@ -12,7 +12,7 @@ export function FacilityTemplate({ facility }: { facility: Facility }) {
   const department = typeof facility.department === 'object' ? facility.department : undefined
 
   return (
-    <article className="facility-page">
+    <article className="cms-page facility-page">
       <header className="page-header">
         <h1>{facility.name}</h1>
         <dl>

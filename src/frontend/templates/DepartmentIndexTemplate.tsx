@@ -4,7 +4,7 @@ import type { Department } from '@/payload-types'
 
 export function DepartmentIndexTemplate({ departments }: { departments: Department[] }) {
   return (
-    <article className="department-index">
+    <article className="cms-page department-index">
       <header className="page-header">
         <h1>Departments</h1>
       </header>

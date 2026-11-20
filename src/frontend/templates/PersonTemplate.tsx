@@ -17,7 +17,7 @@ export function PersonTemplate({ person }: { person: Person }) {
   )
 
   return (
-    <article className="person-page">
+    <article className="cms-page person-page">
       <header className="page-header">
         <CmsImage
           alt={`Portrait of ${person.name}`}

@@ -5,7 +5,7 @@ import type { Committee } from '@/payload-types'
 
 export function CommitteeTemplate({ committee }: { committee: Committee }) {
   return (
-    <article className="committee-page">
+    <article className="cms-page committee-page">
       <header className="page-header">
         <h1>{committee.name}</h1>
       </header>

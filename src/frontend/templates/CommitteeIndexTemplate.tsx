@@ -10,7 +10,7 @@ export function CommitteeIndexTemplate({
   heading?: string
 }) {
   return (
-    <article className="committee-index">
+    <article className="cms-page committee-index">
       <header className="page-header">
         <h1>{heading}</h1>
       </header>

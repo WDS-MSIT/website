@@ -14,7 +14,7 @@ export function ProgrammeIndexTemplate({ programmes }: { programmes: Programme[]
   }
 
   return (
-    <article className="programme-index">
+    <article className="cms-page programme-index">
       <header className="page-header">
         <h1>Programmes</h1>
       </header>

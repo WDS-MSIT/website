@@ -1,80 +1,78 @@
-import { findSafeHref } from '@/frontend/data/urls'
-import type { Document, PlacementYear } from '@/payload-types'
-const documentHref = (document: Document) => findSafeHref(document.url || document.legacyUrl)
+import { ArrowLeft, FileText } from 'lucide-react'
+import Link from 'next/link'
+
+import { KeyFiguresStrip } from '@/frontend/components/site/KeyFiguresStrip'
+import { PageHero } from '@/frontend/components/site/PageHero'
+import { findPlacementEvidence, findPlacementFigures } from '@/frontend/templates/PlacementIndexTemplate'
+import type { PlacementYear } from '@/payload-types'
+
+const formatDate = (value: string) =>
+  new Intl.DateTimeFormat('en-IN', { dateStyle: 'long', timeZone: 'Asia/Kolkata' }).format(new Date(value))
+
+const cardTitle = 'font-sans! text-lg sm:text-2xl font-bold text-slate-900 mb-4'
+
 export function PlacementTemplate({ placement }: { placement: PlacementYear }) {
-  const documents = (placement.evidenceDocuments || []).filter(
-    (item): item is Document => typeof item === 'object' && Boolean(documentHref(item)),
-  )
+  const evidence = findPlacementEvidence(placement)
+  const status = placement.placementStatus === 'ongoing' ? 'Placement season in progress' : 'Final results'
+  const asOf = placement.statisticsAsOf ? `, as of ${formatDate(placement.statisticsAsOf)}` : ''
+
   return (
-    <article className="placement-page">
-      <header className="page-header">
-        <h1>Placements {placement.year}</h1>
-        <p>Status: {placement.placementStatus}</p>
-        {placement.statisticsAsOf ? (
-          <p>
-            Statistics as of{' '}
-            <time dateTime={placement.statisticsAsOf}>
-              {new Date(placement.statisticsAsOf).toLocaleDateString('en-IN')}
-            </time>
-          </p>
+    <article className="bg-surface pb-12 sm:pb-20">
+      <PageHero
+        accentTitle={String(placement.year)}
+        description={`${status}${asOf}.`}
+        heroImage="/campus/conference-room.jpg"
+        heroImageAlt="MSIT conference room"
+        title="Placements"
+      />
+      <KeyFiguresStrip items={findPlacementFigures(placement)} />
+
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 pt-8 sm:pt-14 space-y-6 sm:space-y-8">
+        <Link
+          className="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:text-primary-dark"
+          href="/placements"
+        >
+          <ArrowLeft aria-hidden="true" className="w-4 h-4" />
+          All placement years
+        </Link>
+
+        {placement.narrativeNotes || placement.statisticsNote ? (
+          <section aria-labelledby="placement-notes-heading" className="bg-white rounded-2xl ring-1 ring-slate-200/70 p-5 sm:p-8">
+            <h2 className={cardTitle} id="placement-notes-heading">
+              Overview
+            </h2>
+            {placement.narrativeNotes ? (
+              <p className="text-slate-700 leading-relaxed whitespace-pre-line">{placement.narrativeNotes}</p>
+            ) : null}
+            {placement.statisticsNote ? (
+              <p className="mt-3 text-sm text-slate-600 leading-relaxed">{placement.statisticsNote}</p>
+            ) : null}
+          </section>
         ) : null}
-      </header>
-      {placement.narrativeNotes ? (
-        <section aria-labelledby="placement-notes-heading" className="content-section">
-          <h2 id="placement-notes-heading">Overview</h2>
-          <p>{placement.narrativeNotes}</p>
-        </section>
-      ) : null}
-      <section aria-labelledby="placement-statistics-heading" className="content-section">
-        <h2 id="placement-statistics-heading">Statistics</h2>
-        <dl>
-          {placement.offerCount != null ? (
-            <div>
-              <dt>Offers</dt>
-              <dd>{placement.offerCount}</dd>
-            </div>
-          ) : null}
-          {placement.highestPackageLpa != null ? (
-            <div>
-              <dt>Highest package</dt>
-              <dd>{placement.highestPackageLpa} LPA</dd>
-            </div>
-          ) : null}
-          {placement.medianPackageLpa != null ? (
-            <div>
-              <dt>Median package</dt>
-              <dd>{placement.medianPackageLpa} LPA</dd>
-            </div>
-          ) : null}
-          {placement.averagePackageLpa != null ? (
-            <div>
-              <dt>Average package</dt>
-              <dd>{placement.averagePackageLpa} LPA</dd>
-            </div>
-          ) : null}
-        </dl>
-        {placement.statisticsNote ? <p>{placement.statisticsNote}</p> : null}
-      </section>
-      {documents.length || placement.legacyEvidence?.length ? (
-        <section aria-labelledby="placement-evidence-heading" className="content-section">
-          <h2 id="placement-evidence-heading">Reports and evidence</h2>
-          <ul>
-            {documents.map((document) => (
-              <li key={document.id}>
-                <a href={documentHref(document)}>{document.title}</a>
-              </li>
-            ))}
-            {(placement.legacyEvidence || []).map((item, index) => {
-              const href = findSafeHref(item.url)
-              return href ? (
-                <li key={item.id || index}>
-                  <a href={href}>{item.label}</a>
+
+        {evidence.length ? (
+          <section aria-labelledby="placement-evidence-heading" className="bg-white rounded-2xl ring-1 ring-slate-200/70 p-5 sm:p-8">
+            <h2 className={cardTitle} id="placement-evidence-heading">
+              Reports
+            </h2>
+            <ul className="grid sm:grid-cols-2 gap-2.5 sm:gap-3">
+              {evidence.map((item, index) => (
+                <li key={`${item.href}-${index}`}>
+                  <a
+                    className="flex items-center gap-3 rounded-xl px-3 py-3 text-sm font-semibold text-slate-800 bg-surface ring-1 ring-slate-200/70 hover:ring-primary/40 hover:text-primary transition-colors"
+                    href={item.href}
+                    rel="noopener noreferrer"
+                    target="_blank"
+                  >
+                    <FileText aria-hidden="true" className="w-4 h-4 text-primary shrink-0" />
+                    <span className="min-w-0 break-words">{item.label}</span>
+                  </a>
                 </li>
-              ) : null
-            })}
-          </ul>
-        </section>
-      ) : null}
+              ))}
+            </ul>
+          </section>
+        ) : null}
+      </div>
     </article>
   )
 }

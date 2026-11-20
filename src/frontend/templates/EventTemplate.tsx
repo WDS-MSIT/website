@@ -12,7 +12,7 @@ export function EventTemplate({ event }: { event: Event }) {
   )
   const registrationUrl = findSafeHref(event.registrationUrl)
   return (
-    <article className="event-page">
+    <article className="cms-page event-page">
       <header className="page-header">
         <h1>{event.title}</h1>
         {event.summary ? <p>{event.summary}</p> : null}

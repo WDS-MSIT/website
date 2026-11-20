@@ -19,7 +19,7 @@ export function FacilityIndexTemplate({ facilities }: { facilities: Facility[] }
   }
 
   return (
-    <article className="facility-index">
+    <article className="cms-page facility-index">
       <header className="page-header">
         <h1>Facilities</h1>
       </header>

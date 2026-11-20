@@ -12,7 +12,7 @@ export function DepartmentTemplate({
   programmes,
 }: DepartmentPageData) {
   return (
-    <article className="department-page">
+    <article className="cms-page department-page">
       <header className="page-header">
         <h1>{department.name}</h1>
         {department.code ? <p>{department.code}</p> : null}

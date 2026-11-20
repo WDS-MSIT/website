@@ -209,16 +209,18 @@ export function SiteHeaderView({ chrome }: { chrome: SiteChrome }) {
         {/* Tier 0: institutional links strip */}
         <div className="text-[11px] sm:text-xs font-semibold tracking-wide px-4 lg:px-6 xl:px-12 text-black border-b border-slate-100/80">
           <div className="w-full max-w-screen-2xl mx-auto flex items-center min-h-7 sm:min-h-8 py-1.5 sm:py-1">
-            <nav aria-label="Institutional links" className="flex flex-wrap items-center gap-y-1">
+            {/* One swipeable row on phones, so a long Site Settings list doesn't push the page down */}
+            <nav
+              aria-label="Institutional links"
+              className="flex flex-nowrap sm:flex-wrap items-center gap-y-1 overflow-x-auto sm:overflow-visible scrollbar-hide whitespace-nowrap"
+            >
               {chrome.utilityLinks.map((link, index) => (
-                <span className="inline-flex items-center" key={`${link.label}-${link.href}`}>
+                <span className="inline-flex items-center shrink-0" key={`${link.label}-${link.href}`}>
                   <SiteLink className="leading-snug hover:text-primary hover:underline underline-offset-4" link={link} />
                   {index < chrome.utilityLinks.length - 1 && (
                     <span
                       aria-hidden="true"
-                      className={`mx-2 sm:mx-2.5 text-[10px] sm:text-[11px] select-none font-normal text-black/35 ${
-                        index === 2 ? 'hidden sm:inline' : ''
-                      }`}
+                      className="mx-2 sm:mx-2.5 text-[10px] sm:text-[11px] select-none font-normal text-black/35"
                     >
                       |
                     </span>
@@ -249,7 +251,8 @@ export function SiteHeaderView({ chrome }: { chrome: SiteChrome }) {
             </Link>
 
             <div className="hidden xl:flex items-center space-x-6 text-xs font-bold uppercase tracking-[0.2em] text-muted">
-              {chrome.quickLinks.map((link) => (
+              {/* The logo bar fits three quick links; the phone menu lists them all. */}
+              {chrome.quickLinks.slice(0, 3).map((link) => (
                 <SiteLink className="transition-colors hover:text-primary" key={`${link.label}-${link.href}`} link={link} />
               ))}
               <SiteLink

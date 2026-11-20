@@ -14,7 +14,7 @@ export function UpdateIndexTemplate({
   result: PaginatedDocs<Update>
 }) {
   return (
-    <article className="update-index">
+    <article className="cms-page update-index">
       <header className="page-header">
         <h1>{heading}</h1>
       </header>

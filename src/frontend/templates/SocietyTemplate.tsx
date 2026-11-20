@@ -165,9 +165,7 @@ export function SocietyTemplate({ society }: { society: Society }) {
           <div className={`space-y-6 sm:space-y-8 min-w-0 ${hasSidebar ? 'lg:col-span-2' : ''}`}>
             {society.description ? (
               <Section id="society-about-heading" title="About">
-                <div className="text-slate-700 leading-relaxed text-[15px] sm:text-base [&_p]:mb-4 [&_p:last-child]:mb-0 [&_h2]:text-lg [&_h3]:text-base [&_:is(h2,h3,h4)]:font-sans! [&_:is(h2,h3,h4)]:font-bold [&_:is(h2,h3,h4)]:text-slate-900 [&_:is(h2,h3,h4)]:mt-6 [&_:is(h2,h3,h4)]:mb-2 [&_ul]:list-disc [&_ul]:pl-5 [&_ul]:mb-4 [&_a]:text-primary [&_a]:underline">
-                  <RichTextContent data={society.description} />
-                </div>
+                <RichTextContent data={society.description} />
               </Section>
             ) : society.overview ? (
               <Section id="society-about-heading" title="About">

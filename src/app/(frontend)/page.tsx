@@ -1,8 +1,20 @@
-import { findHomepage } from '@/frontend/data/site'
+import { findProgrammes } from '@/frontend/data/programmes'
+import { findHomepage, findSiteSettings } from '@/frontend/data/site'
 import { HomeTemplate } from '@/frontend/templates/HomeTemplate'
 
 export default async function HomePage() {
-  const { homepage, updateSections } = await findHomepage()
+  const [{ homepage, updateSections }, site, programmes] = await Promise.all([
+    findHomepage(),
+    findSiteSettings(),
+    findProgrammes(),
+  ])
 
-  return <HomeTemplate homepage={homepage} updateSections={updateSections} />
+  return (
+    <HomeTemplate
+      announcements={site.announcements || []}
+      homepage={homepage}
+      programmes={programmes}
+      updateSections={updateSections}
+    />
+  )
 }

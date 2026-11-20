@@ -185,3 +185,246 @@ h4 {
     display: none;
   }
 }
+
+/*
+ * CMS page look.
+ * Standard CMS templates share one structure: an <article class="cms-page"> holding a
+ * header.page-header, section.content-section cards, ul/ol.record-list lists, dl, table and rich
+ * text. Styling that structure here gives every such page, including pages editors add later, the
+ * MSIT design without each template repeating the classes. Kept outside @layer so it wins over the
+ * global heading font rule above (Home, Placements and Societies use utilities instead).
+ */
+.cms-page {
+  @apply bg-surface pb-12 sm:pb-20;
+}
+
+/* Header: dark photo banner, as PageHero */
+.cms-page > .page-header {
+  @apply relative flex flex-col items-start gap-3 sm:gap-4 text-white bg-slate-950 pt-14 sm:pt-24 pb-10 sm:pb-16 mb-8 sm:mb-12;
+  padding-inline: max(1rem, calc((100% - 80rem) / 2 + 1.5rem));
+  background-image:
+    linear-gradient(to right, rgb(2 6 23 / 0.85), rgb(2 6 23 / 0.45), rgb(2 6 23 / 0.15)),
+    linear-gradient(to top, rgb(2 6 23 / 0.6), transparent 60%), url('/campus-hero.webp');
+  background-size: cover;
+  background-position: center;
+}
+.cms-page > .page-header h1 {
+  @apply text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-black tracking-tight leading-[1.05] max-w-5xl;
+}
+.cms-page > .page-header p,
+.cms-page > .page-header time {
+  @apply text-slate-200 text-sm sm:text-lg leading-relaxed max-w-3xl font-medium;
+}
+.cms-page > .page-header img {
+  @apply w-24 h-24 sm:w-32 sm:h-32 rounded-2xl object-cover ring-2 ring-white/30 bg-white;
+}
+.cms-page > .page-header dl {
+  @apply flex flex-wrap gap-2 mt-1;
+}
+.cms-page > .page-header dl > div {
+  @apply rounded-xl bg-white/10 ring-1 ring-white/20 px-3 py-2;
+}
+.cms-page > .page-header dt {
+  @apply text-[10px] sm:text-xs uppercase tracking-wider font-semibold text-slate-300;
+}
+.cms-page > .page-header dd {
+  @apply text-sm sm:text-base font-semibold text-white capitalize;
+}
+.cms-page > .page-header a {
+  @apply text-white underline underline-offset-4 decoration-white/50 hover:decoration-white;
+}
+
+/* Everything after the header sits in the page column; section cards keep their own padding */
+.cms-page > :not(.page-header) {
+  margin-inline: max(1rem, calc((100% - 80rem) / 2 + 1.5rem));
+}
+.cms-page > * + * {
+  @apply mt-6 sm:mt-8;
+}
+.cms-page > .page-header + * {
+  @apply mt-0;
+}
+
+/* Section cards */
+.cms-page :is(.content-section, .document-list, .link-list, .embed, .callout) {
+  @apply block bg-white rounded-2xl ring-1 ring-slate-200/70 p-5 sm:p-8;
+}
+.cms-page :is(.content-section, .document-list, .link-list, .embed, .callout) > h2 {
+  @apply font-sans text-lg sm:text-2xl font-bold text-slate-900 mb-4 sm:mb-6 tracking-tight;
+}
+.cms-page .callout {
+  @apply bg-primary/5 ring-primary/20;
+}
+.cms-page .content-section > :is(p, ol, ul):not(.record-list):not(.media-gallery) {
+  @apply text-slate-700 leading-relaxed;
+}
+.cms-page .content-section > ol:not(.record-list) {
+  @apply list-decimal pl-5 space-y-2;
+}
+.cms-page .content-section > p + p {
+  @apply mt-3;
+}
+.cms-page .content-section > h3,
+.cms-page .content-section > article > h3 {
+  @apply font-sans text-base sm:text-lg font-bold text-slate-900 mt-4 mb-1;
+}
+
+/* Record lists: cards, 2 per row on phones, 3 on large screens; the title link covers the card */
+.cms-page .record-list {
+  @apply grid grid-cols-2 lg:grid-cols-3 gap-2.5 sm:gap-4;
+}
+.cms-page .record-list > li {
+  @apply flex min-w-0;
+}
+.cms-page .record-list > li > article {
+  @apply relative w-full bg-white rounded-xl sm:rounded-2xl ring-1 ring-slate-200/70 p-3 sm:p-5 flex flex-col gap-1 transition duration-200 hover:ring-primary/40 hover:shadow-[0_10px_24px_-14px_rgba(15,23,42,0.35)];
+}
+.cms-page .content-section .record-list > li > article {
+  @apply bg-surface;
+}
+.cms-page .record-list > li > article > :is(h2, h3) {
+  @apply font-sans text-[13px] sm:text-lg font-bold text-slate-900 leading-snug tracking-normal;
+}
+.cms-page .record-list > li > article > :is(h2, h3) a {
+  @apply hover:text-primary transition-colors outline-none;
+}
+.cms-page .record-list > li > article > :is(h2, h3) a::after {
+  content: '';
+  @apply absolute inset-0 rounded-xl sm:rounded-2xl;
+}
+.cms-page .record-list > li > article > :is(h2, h3) a:focus-visible::after {
+  @apply ring-2 ring-primary;
+}
+.cms-page .record-list > li > article > :is(p, time) {
+  @apply text-[11px] sm:text-sm text-slate-600 leading-snug;
+}
+.cms-page .record-list > li > article > p:first-letter {
+  text-transform: uppercase;
+}
+/* Long descriptions (the last line of a card, after a short meta line) stop at four lines */
+.cms-page .record-list > li > article > p:last-child {
+  @apply line-clamp-4;
+}
+.cms-page .record-list > li > article > a,
+.cms-page .record-list > li > article > ul a {
+  @apply relative z-10 text-[11px] sm:text-sm text-primary hover:underline break-all;
+}
+
+/* Plain lists of links, documents and details */
+.cms-page :is(.content-section, .document-list, .link-list) > ul:not(.record-list):not(.media-gallery) {
+  @apply space-y-2;
+}
+.cms-page :is(.content-section, .document-list, .link-list) > ul:not(.record-list):not(.media-gallery) > li > a {
+  @apply inline-flex items-center gap-2 font-semibold text-slate-800 hover:text-primary transition-colors;
+}
+.cms-page :is(.content-section, .document-list, .link-list) > ul:not(.record-list):not(.media-gallery) > li > a::before {
+  content: '';
+  @apply w-1.5 h-1.5 rounded-full bg-primary shrink-0;
+}
+.cms-page .document-list li > p {
+  @apply text-sm text-slate-600 pl-3.5;
+}
+
+/* Term lists outside the header: label above value */
+.cms-page .content-section dl {
+  @apply grid gap-3 sm:gap-4 sm:grid-cols-2;
+}
+.cms-page .content-section dl > div {
+  @apply rounded-xl bg-surface ring-1 ring-slate-200/70 p-3 sm:p-4;
+}
+.cms-page .content-section dt {
+  @apply text-xs font-bold uppercase tracking-wider text-primary;
+}
+.cms-page .content-section dd {
+  @apply mt-1 text-sm sm:text-base text-slate-700 leading-relaxed;
+}
+
+/* Tables */
+.cms-page .table-container,
+.cms-page .content-section:has(> table) {
+  @apply overflow-x-auto;
+}
+.cms-page table {
+  @apply w-full text-left text-sm border-collapse bg-white;
+}
+.cms-page > table,
+.cms-page .table-container {
+  @apply rounded-2xl ring-1 ring-slate-200/70 bg-white;
+}
+.cms-page caption {
+  @apply text-left text-sm font-semibold text-slate-700 p-3;
+}
+.cms-page thead th {
+  @apply bg-surface text-xs font-bold uppercase tracking-wider text-slate-600 px-3 sm:px-4 py-3 border-b border-slate-200 whitespace-nowrap;
+}
+.cms-page tbody :is(th, td) {
+  @apply px-3 sm:px-4 py-3 border-b border-slate-100 text-slate-700 text-sm font-normal capitalize;
+}
+.cms-page tbody :is(th, td) a {
+  @apply font-semibold text-primary hover:underline;
+}
+
+/* Galleries and media */
+.cms-page .media-gallery {
+  @apply grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4;
+}
+.cms-page :is(.media-gallery, .page-media) img {
+  @apply w-full rounded-xl ring-1 ring-slate-200/70 object-cover;
+}
+.cms-page .media-gallery img {
+  @apply aspect-[4/3];
+}
+.cms-page figcaption {
+  @apply mt-1.5 text-xs text-slate-600;
+}
+.cms-page .embed iframe {
+  @apply w-full aspect-video rounded-xl ring-1 ring-slate-200/70 mb-3;
+}
+.cms-page .embed p a {
+  @apply text-sm font-semibold text-primary hover:underline;
+}
+
+/* Pagination */
+.cms-page .pagination {
+  @apply flex items-center justify-center gap-3 text-sm font-semibold text-slate-700;
+}
+.cms-page .pagination a {
+  @apply px-4 py-2 rounded-full bg-white ring-1 ring-slate-200 hover:text-primary hover:ring-primary/40;
+}
+
+/* Empty-state lines directly in the page */
+.cms-page > p {
+  @apply text-slate-700;
+}
+
+/* Rich text written in the CMS editor, on any page */
+.rich-text {
+  @apply text-slate-700 leading-relaxed text-[15px] sm:text-base;
+}
+.rich-text > * + * {
+  @apply mt-4;
+}
+.rich-text :is(h2, h3, h4, h5, h6) {
+  @apply font-sans font-bold text-slate-900 mt-6 tracking-tight;
+}
+.rich-text h2 {
+  @apply text-lg sm:text-xl;
+}
+.rich-text :is(h3, h4, h5, h6) {
+  @apply text-base;
+}
+.rich-text ul {
+  @apply list-disc pl-5 space-y-1.5;
+}
+.rich-text ol {
+  @apply list-decimal pl-5 space-y-1.5;
+}
+.rich-text a {
+  @apply text-primary underline underline-offset-2 hover:text-primary-dark;
+}
+.rich-text blockquote {
+  @apply border-l-4 border-primary/30 pl-4 italic text-slate-600;
+}
+.rich-text strong {
+  @apply font-semibold text-slate-900;
+}

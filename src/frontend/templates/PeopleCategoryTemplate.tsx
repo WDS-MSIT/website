@@ -4,7 +4,7 @@ import type { Person } from '@/payload-types'
 
 export function PeopleCategoryTemplate({ heading, people }: { heading: string; people: Person[] }) {
   return (
-    <article className="people-category">
+    <article className="cms-page people-category">
       <header className="page-header">
         <h1>{heading}</h1>
       </header>

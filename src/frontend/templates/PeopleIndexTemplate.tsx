@@ -26,7 +26,7 @@ export function PeopleIndexTemplate({ people }: { people: Person[] }) {
   }
 
   return (
-    <article className="people-index">
+    <article className="cms-page people-index">
       <header className="page-header">
         <h1>People</h1>
       </header>
