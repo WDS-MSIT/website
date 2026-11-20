@@ -1,31 +1,25 @@
-import type { Metadata } from 'next'
+import type { Metadata, Viewport } from 'next'
 import React from 'react'
 
-import { SiteFooter } from '@/frontend/components/SiteFooter'
-import { SiteHeader } from '@/frontend/components/SiteHeader'
-import { findSiteSettings } from '@/frontend/data/site'
-import './styles.css'
+import '@/website/index.css'
 
-export async function generateMetadata(): Promise<Metadata> {
-  const site = await findSiteSettings()
-
-  return {
-    description: site.affiliationSummary || undefined,
-    title: {
-      default: site.instituteName,
-      template: `%s | ${site.instituteName}`,
-    },
-  }
+// The public site is the MSIT website (src/website), carried over as is. Its own Header and Footer
+// come from the website's Layout, and each page sets its own title through react-helmet-async.
+export const metadata: Metadata = {
+  title: 'Maharaja Surajmal Institute of Technology | MSIT Delhi',
+  description:
+    'Official website of Maharaja Surajmal Institute of Technology (MSIT), a premier engineering college in Delhi affiliated with GGSIPU.',
+  icons: { icon: '/msit-logo.webp', apple: '/msit-logo.webp' },
+  manifest: '/manifest.webmanifest',
 }
 
-export default async function RootLayout({ children }: { children: React.ReactNode }) {
-  const site = await findSiteSettings()
+export const viewport: Viewport = { themeColor: '#ffffff' }
 
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <head>
-        {/* Inter for body text, Libre Baskerville for headings. Loaded by name (not next/font)
-            because the design refers to them by name, e.g. font-[Libre_Baskerville,serif]. */}
+        {/* Inter for body text, Libre Baskerville for headings, as in the website's index.html. */}
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         {/* This is the frontend's root layout, so the fonts load on every public page; the rule
@@ -36,11 +30,7 @@ export default async function RootLayout({ children }: { children: React.ReactNo
           href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800;900&family=Libre+Baskerville:ital,wght@0,400;0,700;1,400&display=swap"
         />
       </head>
-      <body>
-        <SiteHeader site={site} />
-        <main id="main-content">{children}</main>
-        <SiteFooter site={site} />
-      </body>
+      <body>{children}</body>
     </html>
   )
 }
