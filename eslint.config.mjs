@@ -10,9 +10,6 @@ const eslintConfig = [
       'src/migrations/**',
       'src/payload-types.ts',
       'src/payload-generated-schema.ts',
-      // The MSIT website, carried over as is (it runs on its own router, so the Next.js link and
-      // image rules don't apply). Each part comes back under lint as it moves to CMS data.
-      'src/website/**',
     ],
   },
 ]
