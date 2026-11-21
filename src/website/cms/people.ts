@@ -1,10 +1,9 @@
 import type { FacultyMember } from '../types';
 import {
     mediaUrl,
-    normalizeName,
     PUBLISHED,
     safeUrl,
-    useCms,
+    useCmsResource,
     type CmsListResponse,
 } from './client';
 
@@ -86,40 +85,31 @@ const SELECT = [
     .join('&');
 
 export const useCmsFaculty = (fallback: FacultyMember[]): FacultyMember[] =>
-    useCms<FacultyMember[]>(
+    useCmsResource<FacultyMember[]>(
         `people?${PUBLISHED}&${SELECT}&depth=1&limit=1000&sort=sortOrder`,
         (json) => {
             const docs = (json as CmsListResponse<CmsPerson>).docs;
-            if (!docs.length) return null;
-            const byName = new Map(docs.map((person) => [normalizeName(person.name), person]));
-            const matched = new Set<number | string | undefined>();
-            const merged = fallback.map((member) => {
-                const person = byName.get(normalizeName(member.name));
-                if (!person) return member;
-                matched.add(person.id);
-                return { ...member, ...cmsFields(person) };
-            });
-            const added = docs
-                .filter((person) => !matched.has(person.id))
+            return docs
                 .filter((person) =>
                     (person.personTypes || []).some((type) => LISTED_TYPES.includes(type)),
                 )
-                .map((person) => ({ person, dept: deptFor(person) }))
-                .filter((entry): entry is { person: CmsPerson; dept: string } => Boolean(entry.dept))
-                .map(({ person, dept }) => ({
-                    id: `cms-${person.slug}`,
-                    name: person.name,
-                    role: person.primaryDesignation || 'Faculty',
-                    dept,
-                    img: DEFAULT_PHOTO,
-                    bio: '',
-                    goodAt: [],
-                    researchInterests: [],
-                    coursesTaught: [],
-                    otherWebsites: [],
-                    ...cmsFields(person),
-                }));
-            return [...merged, ...added];
+                .map((person) => {
+                    const dept = deptFor(person);
+                    return {
+                        id: `cms-${person.slug}`,
+                        name: person.name,
+                        role: person.primaryDesignation || 'Faculty',
+                        dept: dept || undefined,
+                        img: DEFAULT_PHOTO,
+                        bio: '',
+                        goodAt: [],
+                        researchInterests: [],
+                        coursesTaught: [],
+                        otherWebsites: [],
+                        ...cmsFields(person),
+                    };
+                })
+                .filter((person) => Boolean(person.dept));
         },
         fallback,
-    );
+    ).data;

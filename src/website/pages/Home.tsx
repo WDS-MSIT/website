@@ -7,7 +7,11 @@ import {
 } from 'lucide-react';
 import SEO from '../components/SEO';
 import Announcements from '../components/Announcements';
-import { useCmsAnnouncements, useCmsNews } from '../cms/news';
+import { useCmsAnnouncements, useCmsNewsResource } from '../cms/news';
+import { useCmsHomepage } from '../cms/homepage';
+import { useCmsDepartments } from '../cms/departments';
+import { useCmsProgrammes } from '../cms/programmes';
+import { linkUrl, mediaUrl, safeUrl } from '../cms/client';
 import type { NewsItem } from '../types';
 
 
@@ -380,7 +384,7 @@ const Home = () => {
 
     // Campus Highlights state 
     const [currentHighlight, setCurrentHighlight] = useState(0);
-    const [highlights] = useState<Highlight[]>(() => {
+    const [fileHighlights] = useState<Highlight[]>(() => {
         const stored = localStorage.getItem('msit_highlights_v3') || localStorage.getItem('msit_highlights_v2') || localStorage.getItem('msit_highlights');
         if (stored) {
             const parsed = JSON.parse(stored) as Highlight[];
@@ -431,6 +435,26 @@ const Home = () => {
         localStorage.setItem('msit_highlights_v3', JSON.stringify(defaults));
         return defaults;
     });
+
+    const { data: homepage, status: homepageStatus } = useCmsHomepage();
+    const cmsHighlights: Highlight[] = (homepage?.heroSlides || []).map((slide, index) => ({
+        id: index + 1,
+        image: mediaUrl(slide.image) || safeUrl(slide.legacyImageUrl) || '/campus-hero.webp',
+        quote: slide.caption,
+        source: '',
+        tag: `0${index + 1} / 0${Math.max((homepage?.heroSlides || []).length, 1)}`,
+        link: linkUrl(slide) || '/about',
+    }));
+    const highlights = homepageStatus === 'ready' ? cmsHighlights : fileHighlights;
+
+    const cmsGallery: GalleryItem[] = (homepage?.campusTour?.gallery || []).map((item, index) => ({
+        id: item.id || `cms-gallery-${index}`,
+        title: item.caption || `Campus photo ${index + 1}`,
+        category: 'Campus',
+        image: mediaUrl(item.image) || safeUrl(item.legacyImageUrl) || '/campus-hero.webp',
+        desc: item.caption || '',
+    }));
+    const gallery = homepageStatus === 'ready' ? cmsGallery : CAMPUS_GALLERY;
 
     useEffect(() => {
         if (highlights.length === 0) return;
@@ -517,9 +541,15 @@ const Home = () => {
     const openLightbox = (target: string | LightboxItem) => {
         if (typeof target === 'string') {
             if (target === 'Virtual Tour Launch') {
-                setLightboxImage({ type: 'video', title: 'MSIT Virtual Tour Video Walkthrough', url: 'https://www.youtube.com/embed/WY6dTTsE4cY?autoplay=1&mute=0' });
+                setLightboxImage({
+                    type: 'video',
+                    title: 'MSIT Virtual Tour Video Walkthrough',
+                    url:
+                        safeUrl(homepage?.campusTour?.videoUrl) ||
+                        'https://www.youtube.com/embed/WY6dTTsE4cY?autoplay=1&mute=0',
+                });
             } else {
-                const found = CAMPUS_GALLERY.find(g => 
+                const found = gallery.find(g => 
                     g.title.toLowerCase().includes(target.toLowerCase()) || 
                     g.id.toLowerCase().includes(target.toLowerCase()) ||
                     target.toLowerCase().includes(g.id.replace('-', ' '))
@@ -537,7 +567,7 @@ const Home = () => {
     };
 
 
-    const departments: DepartmentCard[] = [
+    const fileDepartments: DepartmentCard[] = [
         {
             name: "Computer Science & Engineering",
             shortName: "CSE",
@@ -615,6 +645,70 @@ const Home = () => {
             accredited: true
         }
     ];
+
+    const { data: cmsDepartments, status: departmentsStatus } = useCmsDepartments();
+    const { data: cmsProgrammes, status: programmesStatus } = useCmsProgrammes();
+
+    const iconForCode = (code: string): React.ElementType => {
+        switch (code.toUpperCase()) {
+            case 'CSE':
+                return Code2;
+            case 'IT':
+                return Network;
+            case 'ECE':
+                return Cpu;
+            case 'EEE':
+                return Zap;
+            default:
+                return BookOpen;
+        }
+    };
+
+    const cmsDepartmentCards: DepartmentCard[] = cmsDepartments.map((dept, index) => {
+        const programmes = cmsProgrammes.filter((programme) => {
+            const department = programme.department;
+            return typeof department === 'object' && department
+                ? department.id === dept.id
+                : department === dept.id;
+        });
+        const intakes = programmes.flatMap((programme) => programme.intakes || []);
+        const intake = intakes.reduce((sum, row) => sum + (row.seats || 0), 0);
+        const shifts = intakes
+            .map((row) => {
+                const shift = row.shift === 'second' ? 'Evening' : row.shift === 'first' ? 'Morning' : '';
+                return `${row.seats}${shift ? ` ${shift}` : ''}`.trim();
+            })
+            .filter(Boolean)
+            .join(' + ');
+        const accredited = programmes.some((programme) =>
+            (programme.accreditations || []).some(
+                (accreditation) =>
+                    accreditation.accreditationStatus === 'accredited' ||
+                    accreditation.accreditationStatus === 'claimed',
+            ),
+        );
+
+        return {
+            name: dept.name,
+            shortName: dept.code || dept.name,
+            code: dept.code || '',
+            degree: programmes[0]?.degree || '',
+            intake,
+            shifts,
+            est: '',
+            icon: iconForCode(dept.code || ''),
+            theme: fileDepartments[index % fileDepartments.length].theme,
+            desc: dept.overview,
+            specializations: [],
+            accredited,
+            tagline: '',
+        };
+    });
+
+    const departments =
+        departmentsStatus === 'ready' && programmesStatus === 'ready'
+            ? cmsDepartmentCards
+            : fileDepartments;
 
     const parseEventDate = (dateStr?: string) => {
         if (!dateStr) return 0;
@@ -927,9 +1021,11 @@ const Home = () => {
         return defaultEvents;
     });
 
-    // Published CMS updates and events join the built-in list; undated items sort to the end.
-    const cmsNews = useCmsNews();
-    const events: Array<HomeEvent | NewsItem> = [...cmsNews, ...fileEvents];
+    // Once the CMS answers, its updates and events are the list. The built-in items remain only
+    // while the request is loading or if it fails.
+    const { data: cmsNews, status: newsStatus } = useCmsNewsResource();
+    const events: Array<HomeEvent | NewsItem> =
+        newsStatus === 'ready' ? cmsNews : [...cmsNews, ...fileEvents];
     // The alert strip shows the first Site Settings announcement once the CMS has one.
     const [alertItem] = useCmsAnnouncements([{ title: 'Admissions Open for Batch 2026-30. Last date to apply for B.Tech programs is April 30th.', url: null }]);
 
@@ -1059,9 +1155,13 @@ const Home = () => {
                 <div className="max-w-7xl mx-auto px-6 flex items-center">
                     <div className="bg-alert text-white text-xs font-black uppercase tracking-widest px-2.5 py-1 rounded-sm mr-6 shrink-0 shadow-card">Alert</div>
                     <div className="text-sm font-semibold text-title truncate flex-grow tracking-tight">
-                        {alertItem.url ? (
-                            <a href={alertItem.url} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">{alertItem.title}</a>
-                        ) : alertItem.title}
+                        {alertItem ? (
+                            alertItem.url ? (
+                                <a href={alertItem.url} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-colors">{alertItem.title}</a>
+                            ) : (
+                                alertItem.title
+                            )
+                        ) : null}
                     </div>
                 </div>
             </div>
@@ -1783,7 +1883,7 @@ const Home = () => {
 
                         {/* Category filter pills */}
                         <div className="flex flex-wrap gap-2">
-                            {['All', 'Academics', 'Campus Life', 'Heritage', 'Sports'].map((cat) => (
+                            {['All', ...Array.from(new Set(gallery.map((item) => item.category)))].map((cat) => (
                                 <button
                                     key={cat}
                                     type="button"
@@ -1802,7 +1902,7 @@ const Home = () => {
 
                     {/* Gallery Grid */}
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                        {CAMPUS_GALLERY
+                        {gallery
                             .filter(item => galleryFilter === 'All' || item.category === galleryFilter)
                             .map((item) => (
                                 <div

@@ -14,6 +14,8 @@ import SocietyDetailView from '../components/SocietyDetailView';
 import SocietiesHubView from '../components/SocietiesHubView';
 import { societiesData } from '../data/societiesData';
 import { toSocietyDetail, useCmsSocieties } from '../cms/societies';
+import { useCmsPage } from '../cms/pages';
+import { CmsPageView } from '../components/CmsPageView';
 import { createSlugifier } from '../utils/slugify';
 import type { FacultyMember } from '../types';
 
@@ -24,6 +26,7 @@ const DynamicPage = () => {
     const pageData = pagesData[slug];
     const navigate = useNavigate();
     const cmsSocieties = useCmsSocieties();
+    const { data: cmsPage, status: pageStatus } = useCmsPage(slug);
     const [selectedMember, setSelectedMember] = useState<FacultyMember | null>(null);
     const [activeFeeTab, setActiveFeeTab] = useState('pay');
     const [activeEventTab, setActiveEventTab] = useState('avensis');
@@ -291,6 +294,13 @@ const DynamicPage = () => {
                 </section>
             </main>
         );
+    }
+
+    // The CMS is authoritative for ordinary content pages. The fee and events pages keep their
+    // dedicated interactive components until those components are wired to the CMS.
+    if (pageStatus === 'ready' && !['events', 'online-fee'].includes(slug)) {
+        if (cmsPage) return <CmsPageView page={cmsPage} />;
+        return <NotFound />;
     }
 
     if (!pageData) {

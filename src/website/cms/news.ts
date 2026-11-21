@@ -7,7 +7,9 @@ import {
     richTextToPlain,
     safeUrl,
     useCms,
+    useCmsResource,
     type CmsListResponse,
+    type CmsResource,
 } from './client';
 
 /*
@@ -133,20 +135,28 @@ export const eventToNewsItem = (event: CmsEvent): NewsItem => {
 
 const LIST_LIMIT = 100;
 
-// All published CMS updates and events, newest first; null while loading or if the CMS has none.
-export const useCmsNews = (): NewsItem[] => {
-    const updates = useCms<NewsItem[]>(
+// All published CMS updates and events, newest first, with an explicit load state.
+export const useCmsNewsResource = (): CmsResource<NewsItem[]> => {
+    const updates = useCmsResource<NewsItem[]>(
         `updates?${PUBLISHED}&depth=1&limit=${LIST_LIMIT}&sort=-publicationDate`,
         (json) => (json as CmsListResponse<CmsUpdate>).docs.map(updateToNewsItem),
         [],
     );
-    const events = useCms<NewsItem[]>(
+    const events = useCmsResource<NewsItem[]>(
         `events?${PUBLISHED}&depth=1&limit=${LIST_LIMIT}&sort=-startsAt`,
         (json) => (json as CmsListResponse<CmsEvent>).docs.map(eventToNewsItem),
         [],
     );
-    return [...updates, ...events];
+    const status =
+        updates.status === 'unavailable' || events.status === 'unavailable'
+            ? 'unavailable'
+            : updates.status === 'loading' || events.status === 'loading'
+              ? 'loading'
+              : 'ready';
+    return { data: [...updates.data, ...events.data], status };
 };
+
+export const useCmsNews = (): NewsItem[] => useCmsNewsResource().data;
 
 export const isCmsNewsId = (id: unknown): boolean => /^[ue]-/.test(String(id || ''));
 
@@ -177,15 +187,13 @@ type CmsSiteSettings = {
     }>;
 };
 
-// Site Settings announcements as { title, url }; the website's own list until the CMS answers.
+// Site Settings announcements as { title, url }; the design's list only while loading or on failure.
 export const useCmsAnnouncements = (fallback: Announcement[]): Announcement[] =>
-    useCms<Announcement[]>(
+    useCmsResource<Announcement[]>(
         'globals/site-settings?depth=1',
-        (json) => {
-            const items = ((json as CmsSiteSettings).announcements || [])
+        (json) =>
+            ((json as CmsSiteSettings).announcements || [])
                 .map((item) => ({ title: item.message || '', url: linkUrl(item) }))
-                .filter((item) => item.title);
-            return items.length ? items : null;
-        },
+                .filter((item) => item.title),
         fallback,
-    );
+    ).data;

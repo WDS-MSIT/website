@@ -27,7 +27,64 @@ export const fetchCms = (path: string): Promise<CmsResponse | null> => {
     return requests.get(path) as Promise<CmsResponse | null>;
 };
 
+export type CmsStatus = 'loading' | 'ready' | 'unavailable';
+
+export type CmsResource<T> = {
+    data: T;
+    status: CmsStatus;
+};
+
+/**
+ * CMS-authoritative read.
+ *
+ * `data` is the fallback only while loading or when the request fails. Once the CMS answers,
+ * `data` is exactly what the CMS returned, including an empty array or object. This is the
+ * difference between "the editor has not filled this in yet" and "the CMS is down".
+ */
+export const useCmsResource = <T,>(
+    path: string | null,
+    map: (json: CmsResponse) => T,
+    fallback: T,
+): CmsResource<T> => {
+    const [resource, setResource] = useState<CmsResource<T>>({
+        data: fallback,
+        status: path ? 'loading' : 'ready',
+    });
+
+    useEffect(() => {
+        if (!path) {
+            setResource({ data: fallback, status: 'ready' });
+            return undefined;
+        }
+
+        let live = true;
+        setResource((current) => ({ data: current.data, status: 'loading' }));
+
+        fetchCms(path).then((json) => {
+            if (!live) return;
+            if (!json) {
+                setResource({ data: fallback, status: 'unavailable' });
+                return;
+            }
+            try {
+                setResource({ data: map(json), status: 'ready' });
+            } catch {
+                setResource({ data: fallback, status: 'unavailable' });
+            }
+        });
+
+        return () => {
+            live = false;
+        };
+        // `map` and `fallback` are fixed per call site; only the path decides what to load.
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [path]);
+
+    return resource;
+};
+
 // `map` turns the CMS response into the website's shape; returning null keeps the fallback.
+// Kept for the existing hooks while each area moves to `useCmsResource`.
 export const useCms = <T,>(
     path: string | null,
     map: (json: CmsResponse) => T | null,
@@ -76,8 +133,8 @@ export const mediaUrl = (media: unknown): string | null =>
 type CmsLink = {
     destinationType?: string;
     document?: unknown;
-    externalUrl?: string;
-    internalPath?: string;
+    externalUrl?: string | null;
+    internalPath?: string | null;
     page?: unknown;
 };
 

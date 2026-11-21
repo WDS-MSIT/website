@@ -1,5 +1,5 @@
 import type { KeyFigure, PlacementRecord } from '../types';
-import { PUBLISHED, safeUrl, useCms, type CmsListResponse } from './client';
+import { PUBLISHED, safeUrl, useCmsResource, type CmsListResponse } from './client';
 
 /*
  * CMS Placement Years for the Placements page: the year-wise report cards, and the highest and
@@ -34,35 +34,40 @@ const lpa = (value: number): string =>
 
 // [{ year, link }] for every published year with a report, newest first.
 export const useCmsPlacementRecords = (fallback: PlacementRecord[]): PlacementRecord[] =>
-    useCms<PlacementRecord[]>(
+    useCmsResource<PlacementRecord[]>(
         PATH,
-        (json) => {
-            const records = (json as CmsListResponse<CmsPlacementYear>).docs
+        (json) =>
+            (json as CmsListResponse<CmsPlacementYear>).docs
                 .map((year) => ({ year: String(year.year), link: reportUrl(year) }))
-                .filter((record): record is PlacementRecord => Boolean(record.link));
-            return records.length ? records : null;
-        },
+                .filter((record): record is PlacementRecord => Boolean(record.link)),
         fallback,
-    );
+    ).data;
 
 // The website's key figures, with Highest and Average Package taken from the CMS when it has them.
 export const useCmsPlacementFigures = (fallback: KeyFigure[]): KeyFigure[] =>
-    useCms<KeyFigure[]>(
+    useCmsResource<KeyFigure[]>(
         PATH,
         (json) => {
             const latest = (json as CmsListResponse<CmsPlacementYear>).docs.find(
                 (year) => year.highestPackageLpa != null || year.averagePackageLpa != null,
             );
-            if (!latest) return null;
-            return fallback.map((figure) => {
-                if (figure.label === 'Highest Package' && latest.highestPackageLpa != null) {
-                    return { ...figure, value: lpa(latest.highestPackageLpa), note: `Batch of ${latest.year}` };
-                }
-                if (figure.label === 'Average Package' && latest.averagePackageLpa != null) {
-                    return { ...figure, value: lpa(latest.averagePackageLpa), note: `Batch of ${latest.year}` };
-                }
-                return figure;
-            });
+            if (!latest) return [];
+            const figures: KeyFigure[] = [];
+            if (latest.highestPackageLpa != null) {
+                figures.push({
+                    value: lpa(latest.highestPackageLpa),
+                    label: 'Highest Package',
+                    note: `Batch of ${latest.year}`,
+                });
+            }
+            if (latest.averagePackageLpa != null) {
+                figures.push({
+                    value: lpa(latest.averagePackageLpa),
+                    label: 'Average Package',
+                    note: `Batch of ${latest.year}`,
+                });
+            }
+            return figures;
         },
         fallback,
-    );
+    ).data;

@@ -2,9 +2,53 @@ import React, { useState } from 'react';
 import { MapPin, Phone, Mail, Facebook, Twitter, Linkedin, Instagram, ArrowRight, ChevronDown } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAccessibility } from '../context/AccessibilityContext';
+import { linkUrl, mediaUrl, safeUrl } from '../cms/client';
+import { useSiteSettings } from '../cms/site-settings';
+
+const FALLBACK_QUICK_LINKS = [
+    { label: 'About MSIT', url: '/about', external: false },
+    { label: 'Admissions 2026', url: '/online-fee', external: false },
+    { label: 'Academic Programs', url: '/cse', external: false },
+    { label: 'Campus Life', url: '/society', external: false },
+    { label: 'Download Brochure', url: '/brochure', external: false },
+];
 
 const Footer = () => {
     const { setIsModalOpen } = useAccessibility();
+    const { data: site, status } = useSiteSettings();
+    const cmsReady = status === 'ready' && site;
+
+    const instituteName =
+        cmsReady && site.instituteName
+            ? site.instituteName
+            : 'Maharaja Surajmal Institute of Technology';
+    const logoSrc = cmsReady
+        ? mediaUrl(site.logo) || safeUrl(site.legacyLogoUrl) || '/msit-logo.webp'
+        : '/msit-logo.webp';
+    const address = cmsReady ? site.address : 'C-4, Janakpuri, New Delhi\nPIN 110058, India';
+    const contactLines = cmsReady ? site.contactLines || [] : [];
+    const phoneLine = contactLines.find((line) => /phone|reception/i.test(line.label));
+    const emailLine = contactLines.find((line) => /email|mail/i.test(line.label));
+    const cmsFooterLinks = cmsReady
+        ? (site.footerLinks || [])
+              .map((link) => {
+                  const url = linkUrl(link);
+                  return url
+                      ? {
+                            label: link.label,
+                            url,
+                            external: /^https?:\/\//i.test(url) || Boolean(link.openInNewTab),
+                        }
+                      : null;
+              })
+              .filter(
+                  (link): link is { external: boolean; label: string; url: string } =>
+                      Boolean(link),
+              )
+        : [];
+    const footerLinks = cmsReady ? cmsFooterLinks : FALLBACK_QUICK_LINKS;
+    const copyright =
+        (cmsReady && site.footerText) || `© ${new Date().getFullYear()} ${instituteName}`;
     const [expandedSections, setExpandedSections] = useState({
         quickLinks: false,
         resources: false,
@@ -29,8 +73,8 @@ const Footer = () => {
                     <div className="lg:col-span-2 pr-4">
                         <Link to="/" className="flex items-center gap-4 mb-10 group" aria-label="MSIT New Delhi Home">
                             <img 
-                                src="/msit-logo.webp" 
-                                alt="Maharaja Surajmal Institute of Technology (MSIT) Official Logo - Footer Attribution" 
+                                src={logoSrc} 
+                                alt={`${instituteName} logo`} 
                                 className="h-12 md:h-16 w-auto object-contain transition-all duration-500 group-hover:scale-105 brightness-[1.1]" 
                                 width="120"
                                 height="112"
@@ -39,7 +83,7 @@ const Footer = () => {
                             />
                             <div className="flex flex-col justify-center">
                                 <span className="font-['Libre_Baskerville',serif] font-black text-base md:text-xl tracking-tight leading-tight text-white group-hover:text-primary transition-colors">
-                                    Maharaja Surajmal Institute of Technology
+                                    {instituteName}
                                 </span>
                             </div>
                         </Link>
@@ -47,25 +91,38 @@ const Footer = () => {
                             Shaping tomorrow's engineers and innovators through exceptional academic rigor and profound industry immersion.
                         </p>
                         <div className="space-y-4 lg:space-y-6 text-sm font-bold text-slate-400">
-                            <div className="flex items-start group">
-                                <MapPin className="w-5 h-5 mr-4 text-slate-700 shrink-0 mt-0.5 group-hover:text-primary transition-colors" />
-                                <a 
-                                    href="https://www.google.com/maps/dir/?api=1&destination=Maharaja+Surajmal+Institute+of+Technology+Janakpuri+New+Delhi" 
-                                    target="_blank" 
-                                    rel="noopener noreferrer"
-                                    className="hover:text-white transition-colors leading-relaxed"
-                                >
-                                    C-4, Janakpuri, New Delhi<br /><span className="text-xs font-medium opacity-80 uppercase tracking-widest">PIN 110058, India</span>
-                                </a>
-                            </div>
-                            <div className="flex items-center group">
-                                <Phone className="w-5 h-5 mr-4 text-slate-700 group-hover:text-primary transition-colors" />
-                                <a href="tel:01145037193" className="hover:text-white transition-colors tracking-wide">011-45037193</a>
-                            </div>
-                            <div className="flex items-center group">
-                                <Mail className="w-5 h-5 mr-4 text-slate-700 group-hover:text-primary transition-colors" />
-                                <a href="mailto:director@msit.in" className="hover:text-white transition-colors tracking-wide">director@msit.in</a>
-                            </div>
+                            {address ? (
+                                <div className="flex items-start group">
+                                    <MapPin className="w-5 h-5 mr-4 text-slate-700 shrink-0 mt-0.5 group-hover:text-primary transition-colors" />
+                                    <a 
+                                        href={`https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(address)}`} 
+                                        target="_blank" 
+                                        rel="noopener noreferrer"
+                                        className="hover:text-white transition-colors leading-relaxed"
+                                    >
+                                        {address.split('\n').map((line, index) => (
+                                            <span key={`${line}-${index}`}>
+                                                {index > 0 ? <br /> : null}
+                                                <span className={index > 0 ? 'text-xs font-medium opacity-80 uppercase tracking-widest' : undefined}>
+                                                    {line}
+                                                </span>
+                                            </span>
+                                        ))}
+                                    </a>
+                                </div>
+                            ) : null}
+                            {phoneLine ? (
+                                <div className="flex items-center group">
+                                    <Phone className="w-5 h-5 mr-4 text-slate-700 group-hover:text-primary transition-colors" />
+                                    <a href={phoneLine.href || `tel:${phoneLine.value.replace(/\s+/g, '')}`} className="hover:text-white transition-colors tracking-wide">{phoneLine.value}</a>
+                                </div>
+                            ) : null}
+                            {emailLine ? (
+                                <div className="flex items-center group">
+                                    <Mail className="w-5 h-5 mr-4 text-slate-700 group-hover:text-primary transition-colors" />
+                                    <a href={emailLine.href || `mailto:${emailLine.value}`} className="hover:text-white transition-colors tracking-wide">{emailLine.value}</a>
+                                </div>
+                            ) : null}
                         </div>
                     </div>
 
@@ -79,11 +136,19 @@ const Footer = () => {
                             <ChevronDown className={`w-4 h-4 transition-transform duration-300 lg:hidden ${expandedSections.quickLinks ? 'rotate-180' : ''}`} />
                         </h3>
                         <ul className={`space-y-3 lg:space-y-5 font-bold text-sm transition-all duration-300 overflow-hidden ${expandedSections.quickLinks ? 'max-h-60 opacity-100 mb-6' : 'max-h-0 opacity-0 lg:max-h-none lg:opacity-100 lg:mb-0 pointer-events-none lg:pointer-events-auto'}`}>
-                            <li><Link to="/about" className="hover:text-primary transition-all flex items-center gap-2 group"><span className="w-1.5 h-1.5 rounded-full bg-slate-800 group-hover:bg-primary transition-all"></span> About MSIT</Link></li>
-                            <li><Link to="/online-fee" className="hover:text-primary transition-all flex items-center gap-2 group"><span className="w-1.5 h-1.5 rounded-full bg-slate-800 group-hover:bg-primary transition-all"></span> Admissions 2026</Link></li>
-                            <li><Link to="/cse" className="hover:text-primary transition-all flex items-center gap-2 group"><span className="w-1.5 h-1.5 rounded-full bg-slate-800 group-hover:bg-primary transition-all"></span> Academic Programs</Link></li>
-                            <li><Link to="/society" className="hover:text-primary transition-all flex items-center gap-2 group"><span className="w-1.5 h-1.5 rounded-full bg-slate-800 group-hover:bg-primary transition-all"></span> Campus Life</Link></li>
-                            <li><Link to="/brochure" className="hover:text-primary transition-all flex items-center gap-2 group"><span className="w-1.5 h-1.5 rounded-full bg-slate-800 group-hover:bg-primary transition-all"></span> Download Brochure</Link></li>
+                            {footerLinks.map((link) => (
+                                <li key={link.url}>
+                                    {link.external ? (
+                                        <a href={link.url} target="_blank" rel="noopener noreferrer" className="hover:text-primary transition-all flex items-center gap-2 group">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-slate-800 group-hover:bg-primary transition-all"></span> {link.label}
+                                        </a>
+                                    ) : (
+                                        <Link to={link.url} className="hover:text-primary transition-all flex items-center gap-2 group">
+                                            <span className="w-1.5 h-1.5 rounded-full bg-slate-800 group-hover:bg-primary transition-all"></span> {link.label}
+                                        </Link>
+                                    )}
+                                </li>
+                            ))}
                         </ul>
                     </div>
 
@@ -149,7 +214,7 @@ const Footer = () => {
                 {/* Bottom Bar */}
                 <div className="pt-12 pb-20 md:pb-0 border-t border-slate-900 flex flex-col md:flex-row justify-between items-center gap-6 text-xs font-bold tracking-widest uppercase text-slate-400">
                     <div className="flex items-center gap-2">
-                        <span>© 2026 MSIT New Delhi</span>
+                        <span>{copyright}</span>
                     </div>
                     <div className="flex flex-wrap justify-center gap-4 md:gap-8">
                         <Link to="/privacy" className="hover:text-white transition-colors">Privacy</Link>

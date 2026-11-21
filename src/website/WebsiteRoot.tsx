@@ -8,15 +8,19 @@ import dynamic from 'next/dynamic'
 import { StrictMode } from 'react'
 import { HelmetProvider } from 'react-helmet-async'
 
+import { SiteSettingsProvider } from './cms/site-settings'
+
 const App = dynamic(() => import('./App'), { ssr: false })
 
 export default function WebsiteRoot() {
   return (
     <StrictMode>
       <HelmetProvider>
-        <div id="root">
-          <App />
-        </div>
+        <SiteSettingsProvider>
+          <div id="root">
+            <App />
+          </div>
+        </SiteSettingsProvider>
       </HelmetProvider>
     </StrictMode>
   )

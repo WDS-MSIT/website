@@ -1,6 +1,9 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 
+import { mediaUrl, safeUrl } from '../cms/client';
+import { useSiteSettings } from '../cms/site-settings';
+
 type SEOProps = {
     canonicalPath?: string;
     description?: string;
@@ -9,9 +12,12 @@ type SEOProps = {
 };
 
 const SEO = ({ title, description, canonicalPath = '', schema = null }: SEOProps) => {
-    const siteTitle = "Maharaja Surajmal Institute of Technology (MSIT)";
-    const fullTitle = (title && title !== "Home") ? `${title} | MSIT` : siteTitle;
-    const baseUrl = "https://msit-website.netlify.app";
+    const { data: site } = useSiteSettings();
+    const siteTitle = site?.instituteName || 'Maharaja Surajmal Institute of Technology (MSIT)';
+    const fullTitle = title && title !== 'Home' ? `${title} | ${siteTitle}` : siteTitle;
+    const baseUrl = typeof window !== 'undefined' ? window.location.origin : '';
+    const logoSrc = mediaUrl(site?.logo) || safeUrl(site?.legacyLogoUrl) || '/msit-logo.webp';
+    const logoUrl = /^https?:\/\//i.test(logoSrc) ? logoSrc : `${baseUrl}${logoSrc}`;
     
     // Ensure canonicalPath starts with / and doesn't end with /
     const cleanPath = canonicalPath.startsWith('/') ? canonicalPath : `/${canonicalPath}`;
@@ -22,7 +28,7 @@ const SEO = ({ title, description, canonicalPath = '', schema = null }: SEOProps
             {/* Standard metadata tags */}
             <title>{fullTitle}</title>
             <meta name="description" content={description} />
-            <meta name="author" content="Maharaja Surajmal Institute of Technology" />
+            <meta name="author" content={siteTitle} />
             <meta name="robots" content="index, follow" />
             <meta name="googlebot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
             <meta name="bingbot" content="index, follow, max-snippet:-1, max-image-preview:large, max-video-preview:-1" />
@@ -37,14 +43,14 @@ const SEO = ({ title, description, canonicalPath = '', schema = null }: SEOProps
             <meta property="og:title" content={fullTitle} />
             <meta property="og:description" content={description} />
             <meta property="og:url" content={canonicalUrl} />
-            <meta property="og:site_name" content="MSIT Delhi" />
-            <meta property="og:image" content={`${baseUrl}/msit-logo.webp`} />
+            <meta property="og:site_name" content={siteTitle} />
+            <meta property="og:image" content={logoUrl} />
 
             {/* Twitter tags */}
             <meta name="twitter:card" content="summary_large_image" />
             <meta name="twitter:title" content={fullTitle} />
             <meta name="twitter:description" content={description} />
-            <meta name="twitter:image" content="https://msit-website.netlify.app/msit-logo.webp" />
+            <meta name="twitter:image" content={logoUrl} />
 
             {/* Structured Data */}
             {schema && (

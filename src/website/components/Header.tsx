@@ -3,6 +3,8 @@ import { Menu, X, Search, ChevronDown, ChevronRight, ArrowRight, User, Book, Has
 import { Link, useLocation } from 'react-router-dom';
 import { searchSite } from '../search/searchSite';
 import { useAccessibility } from '../context/AccessibilityContext';
+import { linkUrl, mediaUrl, safeUrl } from '../cms/client';
+import { useSiteSettings } from '../cms/site-settings';
 
 type MenuLink = {
     name: string;
@@ -10,8 +12,6 @@ type MenuLink = {
     external?: boolean;
     subItems?: Array<{ name: string; url: string }>;
 };
-
-type MegaMenuKey = 'about' | 'admission' | 'academics' | 'life' | 'placements' | 'student';
 
 type SearchResults = {
     faculty: any[];
@@ -114,7 +114,7 @@ const Header = () => {
         });
     };
 
-    const megaMenuData: Record<MegaMenuKey, MenuLink[]> = {
+    const FALLBACK_MEGA_MENU: Record<string, MenuLink[]> = {
         about: [
             { name: "About MSIT", url: "/about" },
             { name: "Vision & Mission", url: "/vision-mission" },
@@ -170,14 +170,76 @@ const Header = () => {
         ]
     };
 
-    // Thin strip above the header; links open the official pages on msit.in.
-    const topStripLinks = [
-        { name: "Affiliation/Accreditation", url: "https://msit.in/affiliation" },
-        { name: "IQAC/NAAC", url: "https://msit.in/iqac" },
-        { name: "Audit Reports", url: "https://msit.in/reports" },
-        { name: "NIRF", url: "https://msit.in/nirf" },
-        { name: "Mandatory Disclosure", url: "https://msit.in/aicte#mandatory-disclosure" }
+    const { data: site, status: siteStatus } = useSiteSettings();
+    const cmsReady = siteStatus === 'ready' && site;
+
+    const toMenuLink = (link: {
+        destinationType?: string;
+        document?: unknown;
+        externalUrl?: string | null;
+        internalPath?: string | null;
+        label: string;
+        openInNewTab?: boolean | null;
+        page?: unknown;
+    }): MenuLink | null => {
+        const url = linkUrl(link);
+        if (!url) return null;
+        return {
+            name: link.label,
+            url,
+            external: Boolean(link.openInNewTab) || /^https?:\/\//i.test(url),
+        };
+    };
+
+    const cmsMenu = cmsReady
+        ? Object.fromEntries(
+              (site.navigationGroups || [])
+                  .map((group) => [
+                      group.label,
+                      (group.links || [])
+                          .map(toMenuLink)
+                          .filter((link): link is MenuLink => Boolean(link)),
+                  ])
+                  .filter(([, links]) => links.length > 0),
+          )
+        : null;
+    const megaMenuData: Record<string, MenuLink[]> = cmsMenu ?? FALLBACK_MEGA_MENU;
+
+    const FALLBACK_TOP_STRIP = [
+        { name: 'Affiliation/Accreditation', url: 'https://msit.in/affiliation' },
+        { name: 'IQAC/NAAC', url: 'https://msit.in/iqac' },
+        { name: 'Audit Reports', url: 'https://msit.in/reports' },
+        { name: 'NIRF', url: 'https://msit.in/nirf' },
+        { name: 'Mandatory Disclosure', url: 'https://msit.in/aicte#mandatory-disclosure' },
     ];
+    const cmsTopLinks = cmsReady
+        ? (site.utilityLinks || []).map(toMenuLink).filter((link): link is MenuLink => Boolean(link))
+        : [];
+    const topStripLinks = cmsReady ? cmsTopLinks : FALLBACK_TOP_STRIP;
+
+    const FALLBACK_QUICK_LINKS = [
+        { name: 'Faculty Directory', url: '/faculty', external: false },
+        { name: 'Campus Tour', url: '/virtual-tour', external: false },
+    ];
+    const cmsQuickLinks = cmsReady
+        ? (site.primaryLinks || []).map(toMenuLink).filter((link): link is MenuLink => Boolean(link))
+        : [];
+    const quickLinks = cmsReady ? cmsQuickLinks : FALLBACK_QUICK_LINKS;
+
+    const instituteName =
+        cmsReady && site.instituteName
+            ? site.instituteName
+            : 'Maharaja Surajmal Institute of Technology';
+    const logoSrc = cmsReady
+        ? mediaUrl(site.logo) || safeUrl(site.legacyLogoUrl) || '/msit-logo.webp'
+        : '/msit-logo.webp';
+    const receptionLine = cmsReady
+        ? (site.contactLines || []).find((line) => /reception|phone/i.test(line.label))
+        : undefined;
+    const receptionText = receptionLine
+        ? `${receptionLine.label}: ${receptionLine.value}`
+        : 'Reception: +91 11 6521 5941';
+    const receptionHref = receptionLine?.href || 'tel:+911165215941';
 
     const isHomePage = location.pathname === '/';
     const isTransparent = isHomePage && !isScrolled && !isMenuOpen;
@@ -262,8 +324,8 @@ const Header = () => {
                         <Link to="/" className="flex items-center gap-3 lg:gap-4 cursor-pointer select-none">
                             <img
                                 id="header-logo"
-                                src="/msit-logo.webp"
-                                alt="Maharaja Surajmal Institute of Technology (MSIT) Official Logo - Main Campus Entrance"
+                                src={logoSrc}
+                                alt={`${instituteName} logo`}
                                 className={`h-10 md:h-12 lg:h-14 w-auto object-contain shrink-0 transition-all duration-300 ${isTransparent ? 'brightness-[1.2] drop-shadow' : ''}`}
                                 loading="eager"
                                 fetchPriority="high"
@@ -275,7 +337,7 @@ const Header = () => {
                                 <span className={`font-['Libre_Baskerville',serif] font-black text-sm md:text-base lg:text-xl tracking-tight leading-tight transition-colors duration-300 ${
                                     isTransparent ? 'text-white drop-shadow-[0_1px_3px_rgba(0,0,0,0.7)]' : 'text-primary'
                                 }`}>
-                                    <span className="hidden sm:inline text-balance">Maharaja Surajmal Institute of Technology</span>
+                                    <span className="hidden sm:inline text-balance">{instituteName}</span>
                                     <span className="sm:hidden text-base font-black">MSIT Delhi</span>
                                 </span>
                             </div>
@@ -285,8 +347,27 @@ const Header = () => {
                             isTransparent ? 'text-white/90 drop-shadow-[0_1px_2px_rgba(0,0,0,0.6)]' : 'text-muted'
                         }`}>
                             <div className="flex items-center space-x-6">
-                                <Link to="/faculty" className={`transition-colors ${isTransparent ? 'hover:text-white' : 'hover:text-primary'}`}>Faculty Directory</Link>
-                                <Link to="/virtual-tour" className={`transition-colors ${isTransparent ? 'hover:text-white' : 'hover:text-primary'}`}>Campus Tour</Link>
+                                {quickLinks.map((link) =>
+                                    link.external ? (
+                                        <a
+                                            key={link.url}
+                                            href={link.url}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className={`transition-colors ${isTransparent ? 'hover:text-white' : 'hover:text-primary'}`}
+                                        >
+                                            {link.name}
+                                        </a>
+                                    ) : (
+                                        <Link
+                                            key={link.url}
+                                            to={link.url}
+                                            className={`transition-colors ${isTransparent ? 'hover:text-white' : 'hover:text-primary'}`}
+                                        >
+                                            {link.name}
+                                        </Link>
+                                    ),
+                                )}
                                 <a
                                     href="https://ipu.admissions.nic.in/"
                                     target="_blank"
@@ -339,8 +420,8 @@ const Header = () => {
                             }`}>
                                 <House className="w-4 h-4" />
                             </Link>
-                            {['About', 'Admission & Aid', 'Academics', 'Life at MSIT', 'Placements', 'Student Portal'].map((item, idx) => {
-                                const key = item.split(' ')[0].toLowerCase();
+                            {Object.keys(megaMenuData).map((item, idx) => {
+                                const key = item;
                                 const isActive = isCategoryActive(key);
                                 return (
                                     <div
@@ -451,7 +532,7 @@ const Header = () => {
                                         onClick={() => toggleMobileSection(key)}
                                         className="w-full flex items-center justify-between text-xs font-black uppercase tracking-[0.25em] text-slate-900 border-b sm:border-b-0 border-slate-100 pb-3 sm:pb-3 mb-2 sm:mb-4 px-2 text-left cursor-pointer sm:cursor-default"
                                     >
-                                        <span>{key.replace(/([A-Z])/g, ' $1').trim()}</span>
+                                        <span>{key}</span>
                                         <ChevronDown className={`w-4 h-4 text-slate-500 transition-transform duration-300 sm:hidden ${isExpanded ? 'rotate-180 text-primary' : ''}`} />
                                     </button>
                                     <div className={`space-y-1 transition-all duration-300 overflow-hidden sm:max-h-none sm:opacity-100 sm:block ${isExpanded ? 'max-h-[600px] opacity-100 mb-3' : 'max-h-0 opacity-0 sm:max-h-none sm:opacity-100'
@@ -515,8 +596,8 @@ const Header = () => {
                                 <a href="https://mail.google.com/" target="_blank" rel="noopener noreferrer" onClick={() => setIsMenuOpen(false)} className="block w-full text-left py-2 px-4 text-base font-semibold text-slate-600 hover:text-primary hover:bg-slate-50 rounded-xl transition-colors">
                                     Campus Mail
                                 </a>
-                                <a href="tel:+911165215941" onClick={() => setIsMenuOpen(false)} className="block w-full text-left py-2 px-4 text-base font-semibold text-slate-600 hover:text-primary hover:bg-slate-50 rounded-xl transition-colors">
-                                    Reception: +91 11 6521 5941
+                                <a href={receptionHref} onClick={() => setIsMenuOpen(false)} className="block w-full text-left py-2 px-4 text-base font-semibold text-slate-600 hover:text-primary hover:bg-slate-50 rounded-xl transition-colors">
+                                    {receptionText}
                                 </a>
                             </div>
                         </div>
